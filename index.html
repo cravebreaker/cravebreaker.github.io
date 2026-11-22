@@ -1,0 +1,2125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0284C7">
+<title>CraveBreaker — رحلة الحرية</title>
+<!-- الخط من Google Fonts إن توفر الإنترنت، وإلا يعمل الخط الاحتياطي تلقائياً -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ================= Mobile-first base ================= */
+  :root{
+    --blue:#0284C7; --blue-d:#0369A1; --blue-l:#E0F2FE; --blue-xl:#F0F9FF;
+    --mint:#10B981; --mint-d:#059669; --mint-l:#D1FAE5; --mint-xl:#ECFDF5;
+    --bg2:#F8FAFC; --ink:#0F172A; --ink2:#334155; --muted:#64748B; --line:#E2E8F0;
+    --amber:#F59E0B; --amber-l:#FEF3C7; --red:#EF4444; --red-l:#FEE2E2;
+    --fire:#EA580C; --fire-l:#FFF7ED;
+    --radius:20px;
+    --shadow:0 1px 2px rgba(15,23,42,.04), 0 12px 30px -16px rgba(2,132,199,.25);
+    --font:'Cairo','Tajawal','Segoe UI',Tahoma,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;min-width:0}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:var(--font);color:var(--ink);background:#fff;min-height:100vh;display:flex;flex-direction:column;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:15px;line-height:1.6}
+  button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+  button{cursor:pointer;border:none;background:none}
+  button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(2,132,199,.45);outline-offset:2px}
+  .ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+
+  /* ---------- Top bar ---------- */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;
+    background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+  .brand{display:flex;align-items:center;gap:9px;user-select:none;cursor:default}
+  .brand svg{width:36px;height:36px;flex:none}
+  .brand b{font-size:17px;font-weight:800;direction:ltr;display:block;line-height:1.2}
+  .brand small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:700;
+    background:var(--bg2);border:1px solid var(--line);color:var(--muted);transition:all .3s;max-width:54vw}
+  #statusText{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dot{width:10px;height:10px;border-radius:50%;background:#94A3B8;flex:none;position:relative}
+  .pill.live{background:var(--mint-xl);border-color:#A7F3D0;color:var(--mint-d)}
+  .pill.live .dot{background:var(--mint)}
+  .pill.live .dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--mint);animation:ping 1.6s ease-out infinite}
+  .pill.cal{background:var(--amber-l);border-color:#FDE68A;color:#B45309}
+  .pill.cal .dot{background:var(--amber);animation:blink 1s infinite}
+  .pill.err{background:var(--red-l);border-color:#FECACA;color:#B91C1C}
+  .pill.err .dot{background:var(--red)}
+  .pill.busy .dot{background:var(--blue);animation:blink .8s infinite}
+  @keyframes ping{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+  @keyframes blink{50%{opacity:.25}}
+
+  main{flex:1;width:100%;max-width:1120px;margin:0 auto;padding:14px 14px 130px}
+  .screen{display:none}
+  .screen.active{display:block;animation:screenIn .55s cubic-bezier(.2,.8,.2,1)}
+  @keyframes screenIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .lvl{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 10px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);color:var(--ink2);white-space:nowrap}
+  .lvl.sim{background:var(--amber-l);border-color:#FDE68A;color:#92400E}
+  .lvl.live{background:var(--mint-xl);border-color:#A7F3D0;color:#065F46}
+  .lvl.road{background:#EEF2FF;border-color:#C7D2FE;color:#3730A3}
+
+  /* ---------- Home header ---------- */
+  .greet{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:2px 2px 12px}
+  .greet h1{font-size:21px;font-weight:800;line-height:1.3}
+  .greet h1 span{background:linear-gradient(90deg,var(--blue),var(--mint));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--ink2)}
+  .chip.demo{background:var(--amber-l);border-color:#FDE68A;color:#92400E}
+
+  .home-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+
+  /* ---------- Streak ---------- */
+  .streak{padding:14px}
+  .streak-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .streak-head h2{font-size:17px;font-weight:800}
+  .streak-head h2 small{display:block;font-size:12.5px;color:var(--muted);font-weight:600}
+  .streak-count{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:14px;color:var(--fire);background:var(--fire-l);border:1px solid #FED7AA;padding:4px 12px;border-radius:999px;white-space:nowrap}
+  .days{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px}
+  .day{border-radius:13px;padding:7px 0 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    border:1.5px solid var(--line);background:var(--bg2);transition:transform .2s, box-shadow .2s;position:relative;min-height:62px}
+  .day .ic{font-size:clamp(17px,5.4vw,30px);line-height:1.15;display:block}
+  .day .dl{font-size:10.5px;font-weight:800;white-space:nowrap}
+  .day .dl b{display:none;font-weight:600}
+  .day.fire{background:linear-gradient(180deg,#FFF7ED,#FFEDD5);border-color:#FDBA74;color:#C2410C}
+  .day.fire .ic{animation:flicker 1.6s ease-in-out infinite;transform-origin:50% 90%}
+  .day.ice{background:linear-gradient(180deg,#F0F9FF,#E0F2FE);border-color:#BAE6FD;color:#0369A1}
+  .day.ice .ic{animation:shimmer 3s ease-in-out infinite}
+  .day.future{border-style:dashed;color:#94A3B8}
+  .day.future .ic{opacity:.45;filter:grayscale(1)}
+  .day.today{box-shadow:0 0 0 3px rgba(2,132,199,.28)}
+  .day.today::before{content:"";position:absolute;top:-5px;left:50%;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:var(--blue)}
+  .day.sel{transform:translateY(-3px);box-shadow:0 10px 18px -10px rgba(15,23,42,.35)}
+  .day.today.sel{box-shadow:0 0 0 3px rgba(2,132,199,.28),0 10px 18px -10px rgba(15,23,42,.35)}
+  .day.melt{animation:melt .9s ease}
+  @keyframes flicker{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.12) rotate(3deg)}}
+  @keyframes shimmer{0%,100%{opacity:1}50%{opacity:.6}}
+  @keyframes melt{0%{transform:scale(1)}35%{transform:scale(.75) rotate(-10deg);filter:brightness(1.5)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+  .day-detail{margin-top:10px;padding:10px 12px;border-radius:14px;background:var(--bg2);border:1px solid var(--line);font-size:13.5px;color:var(--ink2);line-height:1.7}
+  .day-detail b{color:var(--ink)}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:8px}
+
+  /* ---------- Stats ---------- */
+  .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .stat{padding:10px 10px;text-align:center}
+  .stat small{display:block;font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.4}
+  .stat b{display:block;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.3}
+  .stat b em{font-style:normal;font-size:12px;color:var(--muted);font-weight:600;margin-inline-start:3px}
+  .stat.m b{color:var(--mint-d)} .stat.b b{color:var(--blue)}
+
+  /* ---------- Gap sections ---------- */
+  .gap{padding:16px}
+  .gap-head{display:flex;align-items:flex-start;gap:11px;margin-bottom:12px}
+  .gap-num{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:17px;color:#fff}
+  .g1 .gap-num{background:var(--blue)} .g2 .gap-num{background:var(--mint)} .g3 .gap-num{background:linear-gradient(135deg,var(--blue),var(--mint))}
+  .gap-head h2{font-size:17px;font-weight:800;line-height:1.35}
+  .gap-head h2 small{display:block;font-size:12px;color:var(--muted);font-weight:600;direction:ltr;text-align:right}
+  .gap-head .lvl{margin-top:4px}
+
+  .device-row{display:flex;align-items:center;gap:12px}
+  .device-icon{width:46px;height:46px;border-radius:14px;background:var(--blue-xl);display:grid;place-items:center;color:var(--blue);flex:none}
+  .device-icon svg{width:24px;height:24px}
+  .device-main h3{font-size:14.5px;font-weight:700}
+  .device-main p{font-size:12.5px;color:var(--muted)}
+  .live-row{display:none;margin-top:12px;gap:10px}
+  .live-row.show{display:grid}
+  .readouts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .ro{background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:5px 8px}
+  .ro small{display:block;font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ro b{font-size:15px;font-weight:700;direction:ltr;display:inline-block;font-variant-numeric:tabular-nums}
+  .spark-wrap{position:relative;height:66px;background:linear-gradient(180deg,#fff,var(--blue-xl));border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  #spark{width:100%;height:100%;display:block}
+  .spark-legend{position:absolute;top:3px;left:8px;font-size:10px;color:var(--muted);direction:ltr}
+
+  .actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+  .action{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:16px 10px;border-radius:18px;
+    transition:transform .2s, box-shadow .2s, background .2s;border:1.5px solid transparent;justify-content:center;min-height:132px}
+  .action:hover{transform:translateY(-2px)}
+  .action:active{transform:scale(.98)}
+  .action .ic{width:48px;height:48px;border-radius:15px;display:grid;place-items:center}
+  .action .ic svg{width:26px;height:26px}
+  .action b{font-size:16px;font-weight:800;line-height:1.3}
+  .action span{font-size:12px;opacity:.88;font-weight:500;line-height:1.45}
+  .a-connect{background:var(--blue);color:#fff;box-shadow:0 16px 30px -16px rgba(2,132,199,.7)}
+  .a-connect .ic{background:rgba(255,255,255,.18)}
+  .a-connect:hover{background:var(--blue-d)}
+  .a-connect.connected{background:#fff;color:var(--mint-d);border-color:#A7F3D0;box-shadow:var(--shadow)}
+  .a-connect.connected .ic{background:var(--mint-l)}
+  .a-connect:disabled{opacity:.6;cursor:not-allowed;transform:none}
+  .a-sim{background:var(--mint-xl);color:#065F46;border-color:#A7F3D0}
+  .a-sim .ic{background:var(--mint);color:#fff}
+  .a-sim:hover{background:var(--mint-l)}
+  .hint{margin-top:12px;text-align:center;color:var(--muted);font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .hint .breath-dot{width:10px;height:10px;border-radius:50%;background:var(--mint);animation:softPulse 3s ease-in-out infinite;flex:none}
+  @keyframes softPulse{0%,100%{transform:scale(.8);opacity:.5}50%{transform:scale(1.25);opacity:1}}
+
+  .rows{display:grid;gap:8px}
+  .row-btn{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;border:1.5px solid var(--line);background:#fff;text-align:start;transition:all .2s;width:100%}
+  .row-btn:hover{border-color:#A7F3D0;background:var(--mint-xl)}
+  .row-btn .ric{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:21px;flex:none;background:var(--bg2)}
+  .row-btn .rt{flex:1}
+  .row-btn b{display:block;font-size:14.5px;font-weight:800;line-height:1.35}
+  .row-btn small{display:block;font-size:12px;color:var(--muted);line-height:1.5}
+  .row-btn .chev{color:#94A3B8;font-size:20px;flex:none}
+
+  .patch{padding:12px;border-radius:16px;background:var(--bg2);border:1px solid var(--line)}
+  .patch-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .patch-top b{font-size:14.5px;font-weight:800}
+  .patch-top small{display:block;font-size:12px;color:var(--muted)}
+  .pbtn{padding:9px 14px;border-radius:12px;font-weight:800;font-size:13.5px;background:#fff;border:1.5px solid var(--line);white-space:nowrap;transition:all .2s}
+  .pbtn:hover{border-color:var(--mint)}
+  .pbtn.on{background:var(--mint);border-color:var(--mint);color:#fff}
+  .safety{display:none;margin-top:10px;padding:10px;border-radius:12px;background:#fff;border:1px solid var(--line)}
+  .safety.show{display:block;animation:screenIn .4s}
+  .safety p{font-size:13px;font-weight:700}
+  .safety .yn{display:flex;gap:8px;margin-top:8px}
+  .safety .yn button{flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--line);font-weight:800;font-size:13.5px;background:#fff}
+  .safety .yn button.sel-no{background:var(--mint-xl);border-color:var(--mint);color:var(--mint-d)}
+  .safety .yn button.sel-yes{background:var(--amber-l);border-color:var(--amber);color:#92400E}
+  .safety-msg{display:none;margin-top:8px;font-size:12.5px;line-height:1.7;padding:8px 10px;border-radius:10px}
+  .safety-msg.ok{display:block;background:var(--mint-xl);color:#065F46}
+  .safety-msg.warn{display:block;background:var(--amber-l);color:#92400E}
+  .adh{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .adh i{width:14px;height:14px;border-radius:5px;background:#E2E8F0;display:inline-block}
+  .adh i.on{background:var(--mint)}
+  .note{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.6}
+  .eod-btn{margin-top:12px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:16px;
+    font-weight:800;font-size:15px;color:#fff;background:linear-gradient(90deg,var(--blue),var(--mint));box-shadow:0 14px 28px -16px rgba(2,132,199,.8);transition:transform .2s}
+  .eod-btn:hover{transform:translateY(-2px)}
+  .eod-btn .bell{display:inline-block;animation:ring 2.4s ease-in-out infinite;transform-origin:50% 10%}
+  @keyframes ring{0%,80%,100%{transform:rotate(0)}84%{transform:rotate(16deg)}88%{transform:rotate(-14deg)}92%{transform:rotate(8deg)}96%{transform:rotate(-4deg)}}
+
+  /* ---------- Session ---------- */
+  .session-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+  .session-head h2{font-size:22px;font-weight:800;line-height:1.3}
+  .session-head h2 small{display:block;font-size:12.5px;color:var(--muted);font-weight:500}
+  .src-badge{font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;border:1px solid}
+  .src-badge.live{background:var(--mint-xl);color:var(--mint-d);border-color:#A7F3D0}
+  .src-badge.sim{background:var(--amber-l);color:#B45309;border-color:#FDE68A}
+  .breath-stage{position:relative;width:min(420px,84vw);aspect-ratio:1;margin:6px auto 0;display:grid;place-items:center}
+  .ring{position:absolute;inset:0;transform:rotate(-90deg);width:100%;height:100%}
+  .ring circle{fill:none;stroke-width:6}
+  .ring .track{stroke:#EEF2F7}
+  .ring .prog{stroke:url(#ringGrad);stroke-linecap:round;transition:stroke-dashoffset .12s linear}
+  .ripple{position:absolute;width:62%;aspect-ratio:1;border-radius:50%;border:2px solid rgba(2,132,199,.28);animation:ripple 6s cubic-bezier(.2,.6,.3,1) infinite;pointer-events:none}
+  .ripple.r2{animation-delay:2s;border-color:rgba(16,185,129,.3)}
+  .ripple.r3{animation-delay:4s}
+  @keyframes ripple{0%{transform:scale(.7);opacity:0}15%{opacity:1}100%{transform:scale(1.45);opacity:0}}
+  .paused .ripple{animation-play-state:paused}
+  .glow{position:absolute;width:70%;aspect-ratio:1;border-radius:50%;filter:blur(40px);opacity:.55;
+    background:radial-gradient(circle,rgba(2,132,199,.45),rgba(16,185,129,.25) 60%,transparent 70%)}
+  .breath-circle{position:absolute;width:76%;aspect-ratio:1;border-radius:50%;transform:scale(.58);will-change:transform;
+    box-shadow:0 30px 60px -24px rgba(2,132,199,.55), inset 0 -18px 40px rgba(255,255,255,.25), inset 0 10px 30px rgba(255,255,255,.35)}
+  .bc-layer{position:absolute;inset:0;border-radius:50%}
+  .bc-in{background:radial-gradient(circle at 35% 30%,#7DD3FC 0%,#38BDF8 30%,#0284C7 75%,#0369A1 100%)}
+  .bc-out{background:radial-gradient(circle at 35% 30%,#A7F3D0 0%,#34D399 35%,#10B981 75%,#059669 100%);opacity:0}
+  .bc-shine{position:absolute;inset:8%;border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.55),transparent 45%)}
+  .breath-text{position:relative;z-index:3;text-align:center;color:#fff;text-shadow:0 2px 12px rgba(3,105,161,.35);pointer-events:none}
+  .breath-text .phase{font-size:clamp(18px,5vw,26px);font-weight:700}
+  .breath-text .count{font-size:clamp(64px,19vw,96px);font-weight:800;line-height:1;margin-top:2px;font-variant-numeric:tabular-nums;transition:transform .25s}
+  .breath-text .count.tick{transform:scale(1.08)}
+  .cycle-info{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;color:var(--muted);font-weight:600;font-size:14px}
+  .cdots{display:flex;gap:7px}
+  .cdots i{width:11px;height:11px;border-radius:50%;background:#E2E8F0;transition:all .4s}
+  .cdots i.done{background:var(--mint)}
+  .cdots i.now{background:var(--blue);transform:scale(1.25)}
+  .session-note{text-align:center;color:var(--muted);font-size:13px;margin-top:4px}
+  .pull-chip{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .pull-chip .pc{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:5px 12px;border-radius:999px;background:var(--bg2);border:1px solid var(--line)}
+  .pull-chip .pc.bump{animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+  .pull-chip button{font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:999px;border:1.5px dashed #FCD34D;background:var(--amber-l);color:#92400E}
+  .controls{display:flex;justify-content:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 20px;border-radius:14px;font-size:15px;font-weight:700;transition:all .2s}
+  .btn svg{width:18px;height:18px}
+  .btn-soft{background:#fff;border:1.5px solid var(--line);color:var(--ink2)}
+  .btn-soft:hover{border-color:#BAE6FD;color:var(--blue)}
+  .btn-blue{background:var(--blue);color:#fff}
+  .btn-blue:hover{background:var(--blue-d)}
+  .btn-mint{background:var(--mint);color:#fff}
+  .btn-mint:hover{background:var(--mint-d)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+
+  /* ---------- Result ---------- */
+  .result-head{text-align:center;margin-bottom:14px}
+  .result-head .ok{width:64px;height:64px;border-radius:50%;margin:0 auto 8px;display:grid;place-items:center;background:var(--mint-l);color:var(--mint-d);animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+  .result-head .ok svg{width:34px;height:34px}
+  @keyframes pop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+  .result-head h2{font-size:23px;font-weight:800;line-height:1.35}
+  .result-head p{color:var(--muted);font-size:14px}
+  .result-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+  .rcard{padding:16px}
+  .rcard h3{font-size:16.5px;font-weight:800;margin-bottom:2px}
+  .rcard .sub{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+  .meter{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .seg{border-radius:14px;padding:10px 4px;text-align:center;border:2px solid var(--line);background:var(--bg2);transition:all .4s;opacity:.55}
+  .seg .se{font-size:22px;line-height:1.2}
+  .seg b{display:block;font-size:13.5px;font-weight:800}
+  .seg small{display:block;font-size:11px;color:var(--muted)}
+  .seg.on{opacity:1;transform:translateY(-3px);box-shadow:0 10px 20px -12px rgba(15,23,42,.4)}
+  .seg.light.on{border-color:var(--mint);background:var(--mint-xl)}
+  .seg.med.on{border-color:var(--amber);background:var(--amber-l)}
+  .seg.sev.on{border-color:var(--red);background:var(--red-l)}
+  .auto-read{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border-radius:14px;background:var(--bg2);border:1px solid var(--line);font-size:13px}
+  .auto-read b{font-size:15px}
+  .tip-box{margin-top:12px;padding:14px;border-radius:16px;background:var(--mint-xl);border:1px solid #A7F3D0;animation:screenIn .5s}
+  .tip-box .tt{font-size:12px;font-weight:700;color:var(--mint-d)}
+  .tip-box h4{font-size:18px;font-weight:800;margin:2px 0 4px;color:#064E3B}
+  .tip-box p{font-size:14px;color:#065F46;line-height:1.75}
+  .refer{display:none;margin-top:10px;padding:10px 12px;border-radius:14px;background:var(--blue-xl);border:1px solid #BAE6FD;font-size:13px;color:var(--blue-d);align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .refer.show{display:flex}
+  .refer button{color:var(--blue);font-weight:800;text-decoration:underline;font-size:13px;white-space:nowrap}
+  .ds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .d{padding:10px;border-radius:14px;border:1.5px solid var(--line);background:#fff;transition:all .3s}
+  .d .de{font-size:20px}
+  .d b{display:block;font-size:14px;font-weight:800}
+  .d small{font-size:11px;color:var(--muted);direction:ltr;display:block}
+  .d.on{border-color:var(--mint);background:var(--mint-xl);box-shadow:0 8px 20px -12px rgba(16,185,129,.6)}
+  .count-card{margin-top:14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px}
+  .big-stat{padding:10px 12px;border-radius:14px;background:var(--bg2);border:1px solid var(--line)}
+  .big-stat small{font-size:12px;color:var(--muted);font-weight:600}
+  .big-stat b{display:block;font-size:32px;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
+  .big-stat.g b{color:var(--mint-d)} .big-stat.bl b{color:var(--blue)}
+  .big-stat em{font-style:normal;font-size:11px;color:var(--muted);display:block}
+  .melt-msg{grid-column:1/-1;text-align:center;font-weight:800;color:var(--fire);font-size:14px;display:none}
+  .melt-msg.show{display:block;animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+  .result-actions{display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+
+  /* ---------- Modals (bottom sheet on mobile) ---------- */
+  .modal{position:fixed;inset:0;background:rgba(15,23,42,.38);backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:center;z-index:60}
+  .modal.show{display:flex;animation:fade .25s}
+  @keyframes fade{from{opacity:0}}
+  .sheet{width:100%;max-height:90vh;overflow:auto;background:#fff;border-radius:24px 24px 0 0;padding:18px 16px 22px;box-shadow:0 -20px 60px -20px rgba(15,23,42,.35);animation:sheetUp .35s cubic-bezier(.2,.8,.2,1)}
+  @keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+  .sheet::before{content:"";display:block;width:44px;height:5px;border-radius:9px;background:#CBD5E1;margin:-6px auto 12px}
+  .sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .sheet-head h3{font-size:19px;font-weight:800;line-height:1.4}
+  .sheet-head h3 small{display:block;font-size:12px;color:var(--muted);font-weight:600}
+  .x{width:40px;height:40px;border-radius:12px;background:var(--bg2);font-size:18px;flex:none}
+  .x:hover{background:var(--line)}
+  .info-list{display:grid;gap:8px}
+  .info{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border-radius:14px;background:var(--bg2);border:1px solid var(--line)}
+  .info .ie{font-size:19px;line-height:1.4}
+  .info b{display:block;font-size:14px}
+  .info span{font-size:13.5px;color:var(--ink2);line-height:1.7}
+  .info a{color:var(--blue);font-weight:800;text-decoration:none;direction:ltr;display:inline-block}
+  .sec-title{font-size:14.5px;font-weight:800;margin:14px 0 8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .levels{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .src{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.7}
+  .sheet .controls{justify-content:flex-start}
+
+  form .f{display:grid;gap:4px;margin-bottom:10px}
+  form label{font-size:13px;font-weight:700;color:var(--ink2)}
+  form input[type=text],form input[type=tel],form select{width:100%;padding:11px 12px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-size:16px}
+  form input:focus,form select:focus{border-color:var(--blue)}
+  .checks{display:grid;gap:6px;padding:10px 12px;border-radius:14px;background:var(--bg2);border:1px solid var(--line);margin-bottom:10px}
+  .checks label{display:flex;gap:8px;align-items:flex-start;font-weight:600;font-size:13px;line-height:1.6}
+  .checks input{margin-top:5px;width:16px;height:16px;flex:none;accent-color:var(--blue)}
+  .form-warn{display:none;font-size:12.5px;background:var(--amber-l);color:#92400E;padding:8px 10px;border-radius:10px;margin-bottom:10px;line-height:1.7}
+  .form-warn.show{display:block}
+  .done-box{display:none;text-align:center;padding:16px 8px}
+  .done-box.show{display:block;animation:screenIn .4s}
+  .done-box .big{font-size:44px}
+  .done-box b{display:block;font-size:18px;font-weight:800;margin:4px 0}
+  .done-box p{font-size:13.5px;color:var(--muted)}
+
+  .feed{display:grid;gap:8px}
+  .post{display:flex;gap:10px;padding:11px 12px;border-radius:14px;background:var(--bg2);border:1px solid var(--line);animation:screenIn .4s}
+  .post.mine{background:var(--mint-xl);border-color:#A7F3D0}
+  .av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;flex:none;font-size:15px}
+  .post .pb{flex:1}
+  .post .pn{font-size:13px;font-weight:800}
+  .post .pn small{font-weight:600;color:var(--muted);margin-inline-start:6px}
+  .post p{font-size:13.5px;color:var(--ink2);line-height:1.7}
+  .cheer{margin-top:4px;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;padding:4px 10px;border-radius:999px;border:1.5px solid var(--line);background:#fff}
+  .cheer.done{border-color:var(--mint);color:var(--mint-d)}
+  .cheer .n.bump{display:inline-block;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+  .share-box{padding:12px;border-radius:14px;border:1.5px dashed #A7F3D0;background:#fff;margin-bottom:10px}
+  .share-box p{font-size:13.5px;line-height:1.7}
+
+  /* ---------- Bird mascot ---------- */
+  .bird{display:block;width:100%;height:100%;overflow:visible}
+  .bird .whole{animation:bob 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%}
+  .bird .eyes{animation:blinkEye 5s infinite;transform-box:fill-box;transform-origin:50% 50%}
+  .bird .wing{transform-box:fill-box;transform-origin:85% 20%}
+  .bird .tuft{transform-box:fill-box;transform-origin:50% 100%;animation:tuft 3.2s ease-in-out infinite}
+  .bird.cheer .whole{animation:hop .45s ease-in-out 3}
+  .bird.cheer .wing{animation:flap .18s ease-in-out 8}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4%)}}
+  @keyframes blinkEye{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+  @keyframes tuft{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(5deg)}}
+  @keyframes hop{0%,100%{transform:translateY(0) scale(1)}40%{transform:translateY(-16%) scale(1.04,.97)}70%{transform:translateY(0) scale(1.06,.92)}}
+  @keyframes flap{0%,100%{transform:rotate(0)}50%{transform:rotate(-38deg)}}
+
+  .bubble{position:relative;background:#fff;border:1.5px solid #BAE6FD;border-radius:18px;padding:11px 14px;font-size:14px;line-height:1.75;
+    box-shadow:0 14px 30px -16px rgba(2,132,199,.45);color:var(--ink)}
+  .bubble b{color:var(--blue-d)}
+
+  /* coach in the corner */
+  .coach{position:fixed;left:10px;bottom:10px;z-index:45;width:66px;height:66px}
+  .coach-bird{width:66px;height:66px;border-radius:50%;background:radial-gradient(circle at 50% 60%,#fff 55%,rgba(255,255,255,0) 70%);padding:2px;display:block}
+  .coach .bubble{position:absolute;bottom:74px;left:0;width:max-content;max-width:min(310px,calc(100vw - 20px));opacity:0;transform:translateY(8px) scale(.96);
+    transform-origin:10% 100%;pointer-events:none;transition:all .3s cubic-bezier(.2,.8,.2,1);font-size:13.5px}
+  .coach .bubble.show{opacity:1;transform:none;pointer-events:none}
+  .coach .bubble.show button{pointer-events:auto}
+  .coach .bubble::after{content:"";position:absolute;bottom:-8px;left:24px;width:14px;height:14px;background:#fff;border-right:1.5px solid #BAE6FD;border-bottom:1.5px solid #BAE6FD;transform:rotate(45deg)}
+  .coach .bubble .cname{display:block;font-size:11.5px;font-weight:800;color:var(--mint-d)}
+  .coach .bubble button{margin-top:6px;font-size:12.5px;font-weight:800;color:var(--blue);text-decoration:underline}
+  body.no-coach .coach{display:none}
+
+  /* ---------- Onboarding ---------- */
+  .onboard{position:fixed;inset:0;z-index:90;background:#fff;display:none;flex-direction:column;overflow:auto}
+  .onboard.show{display:flex}
+  .ob-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}
+  .ob-dots{display:flex;gap:6px}
+  .ob-dots i{width:22px;height:6px;border-radius:9px;background:#E2E8F0;transition:all .3s}
+  .ob-dots i.on{background:var(--blue)}
+  .ob-dots i.done{background:var(--mint)}
+  .skip{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:12px;background:var(--amber-l);border:1.5px solid #FDE68A;color:#92400E;font-weight:800;font-size:13.5px;white-space:nowrap}
+  .ob-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 16px 26px;gap:14px;max-width:760px;width:100%;margin:0 auto;
+    background:radial-gradient(500px 300px at 50% 30%,rgba(2,132,199,.07),transparent 70%)}
+  .ob-bird{width:min(150px,40vw);height:min(150px,40vw)}
+  .ob-body .bubble{font-size:16.5px;text-align:center;max-width:560px;width:100%}
+  .ob-body .bubble::after{content:"";position:absolute;top:-8px;left:50%;margin-left:-7px;width:14px;height:14px;background:#fff;border-left:1.5px solid #BAE6FD;border-top:1.5px solid #BAE6FD;transform:rotate(45deg)}
+  .ob-opts{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;width:100%;max-width:560px}
+  .ob-opt{padding:14px 16px;border-radius:16px;border:1.5px solid var(--line);background:#fff;font-size:16px;font-weight:800;text-align:center;transition:all .2s;box-shadow:var(--shadow)}
+  .ob-opt:hover{border-color:var(--blue);background:var(--blue-xl)}
+  .ob-opt.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+  .ob-opt.primary:hover{background:var(--blue-d)}
+  .ob-back{font-size:13px;color:var(--muted);font-weight:700;text-decoration:underline;min-height:24px}
+  .ob-q{font-size:12px;font-weight:800;color:var(--mint-d);display:block;margin-bottom:2px}
+
+  /* ---------- Overlays ---------- */
+  .detect{position:fixed;inset:0;display:none;place-items:center;z-index:70;background:radial-gradient(circle,rgba(16,185,129,.18),rgba(255,255,255,.88) 60%);backdrop-filter:blur(2px)}
+  .detect.show{display:grid;animation:fade .2s}
+  .detect div{text-align:center}
+  .detect .di{width:100px;height:100px;border-radius:50%;margin:0 auto 10px;background:var(--mint);color:#fff;display:grid;place-items:center;animation:pop .5s cubic-bezier(.2,1.6,.4,1);box-shadow:0 0 0 16px rgba(16,185,129,.18)}
+  .detect .di svg{width:48px;height:48px}
+  .detect b{font-size:24px;font-weight:800;color:#065F46}
+  .detect small{display:block;color:var(--muted);font-size:14px;direction:ltr}
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;
+    background:var(--ink);color:#fff;padding:10px 16px;border-radius:14px;font-weight:700;font-size:14px;z-index:95;transition:all .35s;width:max-content;max-width:calc(100vw - 24px);text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%)}
+  .toast.warn{background:#B45309}
+  #confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:100}
+
+  /* End-of-day notification */
+  .notif-wrap{position:fixed;inset:0;z-index:85;display:none;background:rgba(15,23,42,.3);backdrop-filter:blur(2px)}
+  .notif-wrap.show{display:block;animation:fade .25s}
+  .notif{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:min(440px,calc(100vw - 20px));background:#fff;border-radius:22px;
+    box-shadow:0 30px 70px -20px rgba(15,23,42,.5);overflow:hidden;animation:dropIn .55s cubic-bezier(.2,1.3,.4,1);max-height:calc(100vh - 24px);overflow-y:auto}
+  @keyframes dropIn{from{transform:translate(-50%,-120%)}to{transform:translate(-50%,0)}}
+  .notif-app{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg2);border-bottom:1px solid var(--line);font-size:12px;color:var(--muted);font-weight:700}
+  .notif-app svg{width:20px;height:20px}
+  .notif-app span:last-child{margin-inline-start:auto}
+  .notif-body{padding:14px}
+  .notif-hero{display:flex;align-items:center;gap:10px}
+  .notif-hero .nb{width:74px;height:74px;flex:none}
+  .notif-hero h3{font-size:18px;font-weight:800;line-height:1.35}
+  .notif-hero p{font-size:13px;color:var(--muted)}
+  .nstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:12px}
+  .ns{text-align:center;padding:8px 4px;border-radius:14px;background:var(--bg2);border:1px solid var(--line)}
+  .ns b{display:block;font-size:22px;font-weight:800;line-height:1.3;font-variant-numeric:tabular-nums}
+  .ns small{font-size:11px;color:var(--muted);font-weight:600;line-height:1.3;display:block}
+  .ctrl{margin-top:12px}
+  .ctrl-top{display:flex;justify-content:space-between;font-size:13px;font-weight:800}
+  .ctrl-bar{height:10px;border-radius:9px;background:#EEF2F7;overflow:hidden;margin-top:6px}
+  .ctrl-bar i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,var(--blue),var(--mint));transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+  .notif-msg{margin-top:10px;font-size:13.5px;line-height:1.75;color:var(--ink2)}
+
+  /* ---------- Debug panel (hidden: press D or triple-tap logo) ---------- */
+  .debug{position:fixed;left:10px;right:10px;bottom:10px;z-index:96;padding:14px;display:none;font-size:13px;max-height:70vh;overflow:auto}
+  .debug.show{display:block;animation:screenIn .3s}
+  .debug h4{font-size:14px;font-weight:800;margin-bottom:6px;display:flex;justify-content:space-between}
+  .debug label{display:block;color:var(--muted);font-weight:600;margin-top:8px}
+  .debug input[type=range]{width:100%}
+  .debug input[type=number]{width:80px;padding:4px 8px;border:1px solid var(--line);border-radius:8px}
+  .debug .row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .debug .row button{padding:6px 10px;border-radius:9px;background:var(--bg2);border:1px solid var(--line);font-size:12.5px;font-weight:700}
+  .debug pre{margin-top:6px;background:var(--bg2);border-radius:8px;padding:6px 8px;font-size:11px;direction:ltr;text-align:left;white-space:pre-wrap;word-break:break-all;max-height:60px;overflow:auto}
+
+  footer{text-align:center;padding:10px 16px 90px;font-size:11.5px;color:var(--muted);line-height:1.8}
+  footer b{color:var(--ink2)}
+
+
+  /* ---------- v3: slogan, device pill, start button ---------- */
+  .brand small.slogan{color:var(--mint-d);font-weight:700}
+  button.pill{cursor:pointer}
+  button.pill:hover{border-color:#BAE6FD}
+  .pill.hidden{display:none}
+  .tagline{font-size:14px;color:var(--muted);font-weight:700;margin-top:2px}
+  .tagline .en{display:none;font-weight:500;font-size:12.5px}
+  .start-btn{width:100%;display:flex;align-items:center;gap:14px;padding:18px 16px;border-radius:20px;color:#fff;text-align:start;
+    background:linear-gradient(135deg,var(--blue),#0EA5E9 55%,var(--mint));box-shadow:0 18px 34px -18px rgba(2,132,199,.85);
+    transition:transform .2s;animation:breatheGlow 10s ease-in-out infinite}
+  .start-btn:hover{transform:translateY(-2px)}
+  .start-btn:active{transform:scale(.98)}
+  .sb-ic{width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.2);display:grid;place-items:center;flex:none}
+  .sb-ic svg{width:30px;height:30px}
+  .sb-t b{display:block;font-size:19px;font-weight:800;line-height:1.35}
+  .sb-t small{display:block;font-size:12.5px;opacity:.92;line-height:1.5}
+  @keyframes breatheGlow{0%,100%{box-shadow:0 18px 34px -18px rgba(2,132,199,.85)}40%{box-shadow:0 18px 44px -12px rgba(16,185,129,.75)}}
+  .g1-side .hint{justify-content:flex-start;text-align:start;margin-top:12px}
+  .dev-sub{font-size:12px;color:var(--muted);line-height:1.6}
+
+  /* ---------- location + places ---------- */
+  .loc-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;border-radius:14px;background:var(--blue-xl);border:1px solid #BAE6FD;margin-bottom:10px;font-size:13px}
+  .loc-txt{flex:1;min-width:150px;font-weight:700;color:var(--blue-d);line-height:1.5}
+  .loc-bar.need{background:var(--amber-l);border-color:#FDE68A}
+  .loc-bar.need .loc-txt{color:#92400E}
+  #regionSel{padding:7px 8px;border-radius:10px;border:1px solid #BAE6FD;background:#fff;font-size:14px;max-width:100%}
+  .place{padding:12px;border-radius:16px;border:1px solid var(--line);background:var(--bg2);margin-bottom:10px}
+  .place-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}
+  .place-top b{font-size:14.5px;line-height:1.5}
+  .dist{font-size:12px;font-weight:800;color:var(--blue-d);background:#fff;border:1px solid #BAE6FD;padding:2px 10px;border-radius:999px;white-space:nowrap}
+  .dist:empty{display:none}
+  .place p{font-size:13px;color:var(--ink2);margin-top:4px;line-height:1.7}
+  .place-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .tel{font-size:13px;font-weight:800;color:var(--blue);text-decoration:none;background:#fff;border:1.5px solid #BAE6FD;padding:7px 12px;border-radius:12px}
+  .pkg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:12px}
+  .pkg-item{text-align:center;padding:10px 4px;border-radius:14px;background:var(--mint-xl);border:1px solid #A7F3D0;font-size:20px;line-height:1.3}
+  .pkg-item b{display:block;font-size:12.5px;margin-top:2px}
+  .pkg-item small{display:block;font-size:10.5px;color:var(--muted)}
+  .plist{display:grid;gap:8px}
+  .ph{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:11px 12px;border-radius:16px;border:1.5px solid var(--line);background:#fff}
+  .ph.near{border-color:var(--mint);background:var(--mint-xl)}
+  .ph .pi{flex:1 1 200px}
+  .ph b{display:block;font-size:14px;line-height:1.45}
+  .ph small{display:block;font-size:12px;color:var(--muted);line-height:1.5}
+  .ph .pbook{flex:1 1 100%;padding:10px 12px;border-radius:12px;background:var(--blue);color:#fff;font-weight:800;font-size:13.5px;line-height:1.3}
+  .done-box p b{display:inline;font-size:inherit;margin:0}
+  .near-tag{font-size:10.5px;font-weight:800;color:#fff;background:var(--mint);padding:1px 8px;border-radius:999px;margin-inline-start:6px;white-space:nowrap}
+  .book{display:none;margin-top:12px}
+  .book.show{display:block;animation:screenIn .35s}
+  .book-for{font-size:13.5px;font-weight:800;margin-bottom:8px}
+  .code{font-size:28px;font-weight:800;letter-spacing:1px;direction:ltr;color:var(--blue-d);background:var(--blue-xl);border:2px dashed #7DD3FC;border-radius:14px;padding:6px 16px;display:inline-block;margin:8px 0}
+
+  /* ---------- chat ---------- */
+  .chat-btn{margin-top:10px;width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;border:1.5px solid #BAE6FD;background:var(--blue-xl);text-align:start;transition:all .2s}
+  .chat-btn:hover{border-color:var(--blue)}
+  .chat-btn .cb-bird{width:46px;height:46px;flex:none}
+  .chat-btn b{display:block;font-size:14.5px;font-weight:800;color:var(--blue-d)}
+  .chat-btn small{display:block;font-size:12px;color:var(--muted)}
+  .chat-sheet{display:flex;flex-direction:column;height:88vh;max-height:88vh;padding:0;overflow:hidden}
+  .chat-sheet::before{margin:8px auto 0}
+  .chat-head{display:flex;align-items:center;gap:10px;padding:8px 14px 10px;border-bottom:1px solid var(--line)}
+  .ch-bird{width:52px;height:52px;flex:none}
+  .ch-t{flex:1}
+  .ch-t h3{font-size:16.5px;font-weight:800;line-height:1.3}
+  .ch-t small{font-size:11.5px;color:var(--muted)}
+  .on-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mint);margin-inline-end:3px}
+  .chat-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--bg2);overscroll-behavior:contain}
+  .msg{max-width:88%;padding:10px 13px;border-radius:18px;font-size:14.5px;line-height:1.75;animation:screenIn .3s}
+  .msg.bot{align-self:flex-start;background:#fff;border:1px solid var(--line);border-start-start-radius:6px}
+  .msg.me{align-self:flex-end;background:var(--blue);color:#fff;border-end-end-radius:6px}
+  .msg ul,.msg ol{margin:4px 0;padding-inline-start:20px}
+  .msg b{color:var(--blue-d)}
+  .msg.me b{color:#fff}
+  .msg .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .msg .acts button{font-size:12.5px;font-weight:800;padding:7px 11px;border-radius:10px;background:var(--mint-xl);border:1.5px solid #A7F3D0;color:#065F46}
+  .msg.alert{background:var(--red-l);border-color:#FECACA}
+  .typing{align-self:flex-start;background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px 14px;display:flex;gap:4px}
+  .typing i{width:7px;height:7px;border-radius:50%;background:#94A3B8;animation:tdot 1s infinite}
+  .typing i:nth-child(2){animation-delay:.15s}
+  .typing i:nth-child(3){animation-delay:.3s}
+  @keyframes tdot{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}
+  .quick{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;border-top:1px solid var(--line);background:#fff;scrollbar-width:none;flex:none}
+  .quick::-webkit-scrollbar{display:none}
+  .quick button{flex:none;font-size:13px;font-weight:700;padding:7px 12px;border-radius:999px;border:1.5px solid #BAE6FD;background:var(--blue-xl);color:var(--blue-d);white-space:nowrap}
+  .chat-in{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#fff;flex:none}
+  .chat-in input{flex:1;padding:11px 14px;border-radius:14px;border:1.5px solid var(--line);font-size:16px;background:#fff}
+  .chat-in input:focus{border-color:var(--blue);outline:none}
+  .send{width:46px;height:46px;border-radius:14px;background:var(--blue);color:#fff;display:grid;place-items:center;flex:none}
+  .send svg{width:20px;height:20px;transform:scaleX(-1)}
+
+  /* ---------- splash ---------- */
+  .splash{position:fixed;inset:0;z-index:200;display:grid;place-items:center;
+    background:radial-gradient(600px 420px at 50% 42%,#E0F2FE,#fff 72%);transition:opacity .5s ease, visibility .5s ease}
+  .splash.hide{opacity:0;visibility:hidden}
+  .sp-in{text-align:center;padding:20px;animation:spIn .7s cubic-bezier(.2,.8,.2,1)}
+  @keyframes spIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+  .sp-logo{width:52px;height:52px}
+  .sp-name{font-size:30px;font-weight:800;direction:ltr;line-height:1.2;background:linear-gradient(90deg,var(--blue),var(--mint));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sp-bird{width:min(160px,42vw);height:min(160px,42vw);margin:8px auto 4px}
+  .sp-slogan{font-size:clamp(22px,6.4vw,30px);font-weight:800;color:var(--ink)}
+  .sp-en{font-size:14px;color:var(--muted);direction:ltr;margin-top:2px}
+  .sp-in::after{content:"";display:block;width:120px;height:4px;margin:16px auto 0;border-radius:9px;
+    background:linear-gradient(90deg,var(--blue),var(--mint)) 0 0/0% 100% no-repeat,#E2E8F0;animation:spBar 1.6s ease forwards}
+  @keyframes spBar{to{background-size:100% 100%,auto}}
+
+  /* ================= Tablet / Desktop ================= */
+  @media (min-width:600px){
+    body{font-size:16px}
+    .topbar{padding:14px 24px}
+    .brand svg{width:40px;height:40px}
+    .brand b{font-size:19px}
+    .pill{font-size:13.5px;padding:7px 14px}
+    main{padding:22px 22px 60px}
+    .greet h1{font-size:26px}
+    .day{min-height:84px;border-radius:16px}
+    .day .dl{font-size:12px}
+    .day .dl b{display:inline}
+    .stat b{font-size:26px}
+    .stats{gap:12px}
+    .action{min-height:160px}
+    .action b{font-size:18px}
+    .action span{font-size:13px}
+    .readouts{display:flex;flex-wrap:wrap}
+    .ro{min-width:120px}
+    .live-row.show{grid-template-columns:auto minmax(0,1fr);align-items:center}
+    .ob-opts.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .ob-opts.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .ob-bird{width:190px;height:190px}
+    .ob-body .bubble{font-size:18px;padding:16px 22px}
+    .modal{align-items:center;padding:20px}
+    .sheet{width:min(620px,100%);border-radius:24px;padding:22px 24px;max-height:90vh}
+    .sheet::before{display:none}
+    .debug{left:18px;right:auto;bottom:18px;width:340px}
+    .coach{left:18px;bottom:18px;width:92px;height:92px}
+    .coach-bird{width:92px;height:92px}
+    .coach .bubble{bottom:100px;font-size:14px}
+    .toast{bottom:30px}
+    footer{padding-bottom:22px}
+    .breath-stage{width:min(430px,70vw)}
+    .chat-sheet{height:min(700px,86vh);width:min(560px,100%);padding:0}
+    .tagline .en{display:inline}
+    .ph .pbook{flex:0 0 auto;max-width:190px}
+    .start-btn{padding:22px 20px}
+    .sb-t b{font-size:21px}
+  }
+  @media (min-width:900px){
+    .home-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .span2{grid-column:1/-1}
+    .g1-inner{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+    .g1 .actions{margin-top:0}
+    .g1-inner{align-items:center}
+    .g1-side .hint{margin-top:0}
+    .g1 .live-row.show{grid-template-columns:minmax(0,1fr)}
+    .g1 .readouts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+    .g1 .spark-wrap{height:78px}
+    .result-grid{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}
+    main{padding-bottom:40px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .ripple,.pill.live .dot::after,.hint .breath-dot,.bird .whole,.bird .tuft,.day.fire .ic,.day.ice .ic,.eod-btn .bell{animation:none !important}
+  }
+</style>
+</head>
+<body class="no-coach">
+
+<!-- ======================= TOP BAR ======================= -->
+<header class="topbar">
+  <div class="brand" id="brand" title="CraveBreaker">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo"/></svg>
+    <div><b>CraveBreaker</b><small class="slogan">خذ نفس، واكسر الرغبة</small></div>
+  </div>
+  <button class="pill" id="statusPill" aria-live="polite" title="اضغط لربط جهاز CraveBreaker عبر USB (Chrome / Edge على الحاسوب)"><span class="dot"></span><span id="statusText">الجهاز غير متصل</span></button>
+</header>
+
+<!-- shared SVG defs -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0284C7"/><stop offset="1" stop-color="#10B981"/></linearGradient>
+    <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0284C7"/><stop offset="1" stop-color="#10B981"/></linearGradient>
+    <radialGradient id="birdBody" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#7DD3FC"/><stop offset=".55" stop-color="#38BDF8"/><stop offset="1" stop-color="#0284C7"/></radialGradient>
+    <linearGradient id="birdWing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0284C7"/><stop offset="1" stop-color="#0369A1"/></linearGradient>
+    <symbol id="logo" viewBox="0 0 64 64">
+      <rect x="2" y="2" width="60" height="60" rx="18" fill="url(#lg)"/>
+      <circle cx="32" cy="32" r="17" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2.5"/>
+      <path d="M13 33 C 19 33, 20 24, 26 24 S 31 40, 37 40 S 43 28, 51 28" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
+      <path d="M30.5 15 L 27.5 22 M 34.5 42 L 33 49" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".9"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main>
+  <!-- ======================= HOME ======================= -->
+  <section class="screen active" id="home">
+    <div class="greet">
+      <div><h1>رحلتك نحو <span>الحرية</span></h1><p class="tagline">خذ نفس، واكسر الرغبة<span class="en"> · <span class="ltr">Take a breath, break the crave</span></span></p></div>
+      <div class="chips" id="profileChips"></div>
+    </div>
+
+    <div class="home-grid">
+      <!-- Streak -->
+      <section class="card streak span2" aria-label="أيام الحماس">
+        <div class="streak-head">
+          <h2>أيام الحماس<small id="dayTitle">اليوم 1 بدون تدخين</small></h2>
+          <span class="streak-count" id="streakCount">🔥 0 أيام متتالية</span>
+        </div>
+        <div class="days" id="days"></div>
+        <div class="day-detail" id="dayDetail">اضغط على أي يوم لمعاينته.</div>
+        <div class="legend"><span>🔥 يوم نشِط: استخدمت الجهاز وكسرت الرغبة</span><span>❄️ يوم متجمد: لا جلسات</span><span>🔒 يوم قادم</span></div>
+      </section>
+
+      <!-- Stats -->
+      <div class="stats span2">
+        <div class="card stat m"><small>جلسات تنفس مكتملة</small><b id="stEpisodes">0</b></div>
+        <div class="card stat b"><small>المبلغ الموفّر (تقديري)</small><b id="stSaved">0.00<em>د.أ</em></b></div>
+        <div class="card stat"><small>آخر شدة رغبة</small><b id="stLast" style="font-size:18px">—</b></div>
+      </div>
+
+      <!-- GAP 1 -->
+      <section class="card gap g1 span2" aria-labelledby="g1t">
+        <div class="gap-head">
+          <div class="gap-num">1</div>
+          <div><h2 id="g1t">تمرين التنفس الواعي<small>Gap 1 · Mindful Breathing Exercise</small></h2></div>
+        </div>
+        <div class="g1-inner">
+          <button class="start-btn" id="btnSim">
+            <span class="sb-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l3-8 4 16 3-8h5"/></svg></span>
+            <span class="sb-t"><b>ابدأ تمرين التنفس</b><small>محاكاة سحبة · 30 ثانية (شهيق 4 / زفير 6)</small></span>
+          </button>
+          <div class="g1-side">
+            <div class="hint"><span class="breath-dot"></span><span>عند الرغبة: خذ نفساً هادئاً من هواء الغرفة عبر الجهاز، فيبدأ التمرين تلقائياً</span></div>
+            <div class="live-row" id="liveRow">
+              <div class="readouts">
+                <div class="ro"><small>الضغط الحي (hPa)</small><b id="roP">—</b></div>
+                <div class="ro"><small>خط الأساس (hPa)</small><b id="roB">—</b></div>
+                <div class="ro"><small>الفرق Δ (hPa)</small><b id="roD">—</b></div>
+              </div>
+              <div class="spark-wrap"><canvas id="spark"></canvas><span class="spark-legend" id="sparkLegend">Δ pressure · threshold −0.35 hPa</span></div>
+              <p class="dev-sub" id="devSub"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GAP 2 -->
+      <section class="card gap g2" aria-labelledby="g2t">
+        <div class="gap-head">
+          <div class="gap-num">2</div>
+          <div><h2 id="g2t">الوصول الاجتماعي والدعم<small>Gap 2 · Social Accessibility</small></h2></div>
+        </div>
+        <div class="loc-bar" id="locBar">
+          <span class="loc-ic">📍</span>
+          <span class="loc-txt" id="locText">جارٍ تحديد موقعك…</span>
+          <select id="regionSel" aria-label="اختر منطقتك يدوياً">
+            <option value="">اختر منطقتك</option>
+          </select>
+        </div>
+        <div class="rows">
+          <button class="row-btn" data-open="clinicModal"><span class="ric">🏥</span><span class="rt"><b>أقرب عيادة إقلاع</b><small id="clinicHint">مركز الحسين للسرطان (KHCC) وعيادات وزارة الصحة</small></span><span class="chev">‹</span></button>
+          <button class="row-btn" data-open="pharmModal"><span class="ric">💊</span><span class="rt"><b>احجز باقة الإقلاع من أقرب صيدلية</b><small id="pharmHint">احجز واستلم من الصيدلية · جهاز + لصقات NRT + استشارة</small></span><span class="chev">‹</span></button>
+          <button class="row-btn" data-open="communityModal"><span class="ric">🤝</span><span class="rt"><b>مجتمع المقلعين</b><small>قصص وتشجيعات وشارك إنجازك</small></span><span class="chev">‹</span></button>
+        </div>
+      </section>
+
+      <!-- GAP 3 -->
+      <section class="card gap g3" aria-labelledby="g3t">
+        <div class="gap-head">
+          <div class="gap-num">3</div>
+          <div><h2 id="g3t">المتابعة ومرشدك الذكي نسيم<small>Gap 3 · Regulations & AI Coach</small></h2></div>
+        </div>
+        <div class="patch">
+          <div class="patch-top">
+            <div><b>🩹 لصقة النيكوتين اليوم</b><small id="patchTime">لم تُسجَّل بعد</small></div>
+            <button class="pbtn" id="btnPatch">تم وضع اللصقة اليوم</button>
+          </div>
+          <div class="safety" id="safety">
+            <p>فحص الأمان: هل دخنت أو استخدمت الفيب اليوم بعد وضع اللصقة؟</p>
+            <div class="yn"><button id="dualNo">لا</button><button id="dualYes">نعم</button></div>
+            <div class="safety-msg" id="safetyMsg"></div>
+          </div>
+          <div class="adh" id="adh"></div>
+        </div>
+        <button class="eod-btn" id="btnEod"><span>معاينة إشعار إنجازات اليوم</span><span class="bell">🔔</span></button>
+        <button class="chat-btn" id="btnChat"><span class="cb-bird" id="chatBtnBird"></span><span><b>تحدّث مع نسيم</b><small>مرشدك الذكي لأي لحظة صعبة</small></span></button>
+      </section>
+    </div>
+  </section>
+
+  <!-- ======================= SESSION ======================= -->
+  <section class="screen" id="session">
+    <div class="session-head">
+      <h2>جلسة كسر الرغبة<small>Crave Breaker Session · تمرين تنفس بطيء للاسترخاء وتنظيم الاستجابة للتوتر</small></h2>
+      <span class="src-badge live" id="srcBadge">📡 سحبة حقيقية من الحساس</span>
+    </div>
+    <div class="breath-stage" id="stage">
+      <svg class="ring" viewBox="0 0 320 320" aria-hidden="true">
+        <circle class="track" cx="160" cy="160" r="152"/>
+        <circle class="prog" id="ringProg" cx="160" cy="160" r="152"/>
+      </svg>
+      <div class="glow"></div>
+      <div class="ripple"></div><div class="ripple r2"></div><div class="ripple r3"></div>
+      <div class="breath-circle" id="bCircle">
+        <div class="bc-layer bc-in"></div>
+        <div class="bc-layer bc-out" id="bcOut"></div>
+        <div class="bc-shine"></div>
+      </div>
+      <div class="breath-text" aria-live="polite">
+        <div class="phase" id="phaseLabel">استعد...</div>
+        <div class="count" id="phaseCount">4</div>
+      </div>
+    </div>
+    <div class="cycle-info"><div class="cdots" id="cdots"><i></i><i></i><i></i></div><span id="cycleLabel">الدورة 1 من 3</span></div>
+    <p class="session-note">شهيق من الأنف 4 ثوانٍ · زفير بطيء من الفم 6 ثوانٍ، خارج الجهاز</p>
+    <div class="pull-chip">
+      <span class="pc" id="pullChip">📡 السحبات المرصودة: <b id="pullN">1</b></span>
+      <button id="btnExtraPull" title="محاكاة سحبة إضافية">+ سحبة (محاكاة)</button>
+    </div>
+    <div class="controls">
+      <button class="btn btn-soft" id="btnPause"></button>
+      <button class="btn btn-blue" id="btnEnd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg><span>إنهاء الجلسة</span></button>
+    </div>
+  </section>
+
+  <!-- ======================= RESULT ======================= -->
+  <section class="screen" id="result">
+    <div class="result-head">
+      <div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h2 id="resTitle">أحسنت! أكملت جلسة كسر الرغبة</h2>
+      <p id="resSub">3 دورات من التنفس البطيء (30 ثانية)</p>
+    </div>
+    <div class="result-grid">
+      <div class="card rcard">
+        <h3>مؤشر حدة الرغبة (تحليل تلقائي)</h3>
+        <p class="sub">محسوب تلقائياً من عدد السحبات المتكررة خلال آخر 60 ثانية</p>
+        <div class="meter" id="meter">
+          <div class="seg light"><div class="se">🟢</div><b>خفيفة</b><small>سحبة واحدة</small></div>
+          <div class="seg med"><div class="se">🟡</div><b>متوسطة</b><small>سحبتان متتاليتان</small></div>
+          <div class="seg sev"><div class="se">🔴</div><b>شديدة</b><small>3 سحبات أو أكثر</small></div>
+        </div>
+        <div class="auto-read"><span id="autoRead">—</span><span class="lvl" id="autoSrc">📡 من الحساس</span></div>
+        <div class="tip-box" id="tipBox">
+          <div class="tt">نصيحة فورية · قاعدة 4Ds</div>
+          <h4 id="tipTitle"></h4>
+          <p id="tipText"></p>
+        </div>
+        <div class="refer" id="refer"><span>إذا تكررت الرغبة الشديدة، فعيادة الإقلاع تساعدك بخطة علاج معتمدة.</span><button data-open="clinicModal">معلومات العيادة</button></div>
+        <p class="note">مؤشر تقديري تجريبي، ويحتاج تحققاً سريرياً.</p>
+      </div>
+      <div class="card rcard">
+        <h3>قاعدة 4Ds</h3>
+        <p class="sub">أربع خطوات سلوكية بسيطة للتعامل مع لحظة الرغبة</p>
+        <div class="ds">
+          <div class="d" data-d="delay"><div class="de">⏳</div><b>تأجيل</b><small>Delay</small></div>
+          <div class="d" data-d="breathe"><div class="de">🌬️</div><b>تنفس عميق</b><small>Deep breathing</small></div>
+          <div class="d" data-d="water"><div class="de">💧</div><b>شرب الماء</b><small>Drink water</small></div>
+          <div class="d" data-d="distract"><div class="de">🎯</div><b>تشتيت الانتباه</b><small>Distract</small></div>
+        </div>
+      </div>
+    </div>
+    <div class="card count-card">
+      <div class="big-stat g"><small>جلسات تنفس مكتملة</small><b id="resEpisodes">0</b><em>لحظات تحكّم في كل الأيام</em></div>
+      <div class="big-stat bl"><small>المبلغ الموفّر (د.أ)</small><b id="resSaved">0.00</b><em id="savedNote">تقدير: سيجارة واحدة لكل جلسة</em></div>
+      <div class="melt-msg" id="meltMsg">أذبت جليد اليوم! يومك تحوّل من ❄️ إلى 🔥</div>
+    </div>
+    <div class="result-actions">
+      <button class="btn btn-mint" id="btnDone">العودة للرئيسية</button>
+      <button class="btn btn-soft" id="btnAgain">جلسة أخرى</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  نموذج أولي للعرض · لا يغني عن استشارة الطبيب أو الصيدلاني
+</footer>
+
+<!-- ======================= COACH (corner bird) ======================= -->
+<div class="coach" id="coach">
+  <div class="bubble" id="coachBubble" role="status" aria-live="polite"><span class="cname">نسيم · مرشدك الذكي</span><span id="coachText"></span></div>
+  <button class="coach-bird" id="coachBird" aria-label="العصفور المدرب نسيم"></button>
+</div>
+
+<!-- ======================= SPLASH ======================= -->
+<div class="splash" id="splash" aria-hidden="true">
+  <div class="sp-in">
+    <svg class="sp-logo" viewBox="0 0 64 64"><use href="#logo"/></svg>
+    <div class="sp-name">CraveBreaker</div>
+    <div class="sp-bird" id="splashBird"></div>
+    <div class="sp-slogan">خذ نفس، واكسر الرغبة</div>
+    <div class="sp-en">Take a breath, break the crave</div>
+  </div>
+</div>
+
+<!-- ======================= ONBOARDING ======================= -->
+<div class="onboard" id="onboard" role="dialog" aria-modal="true" aria-label="الترحيب">
+  <div class="ob-top">
+    <div class="ob-dots" id="obDots"><i></i><i></i><i></i><i></i></div>
+    <button class="skip" id="obSkip">⏭ تخطي سريع للعرض</button>
+  </div>
+  <div class="ob-body">
+    <div class="ob-bird" id="obBird"></div>
+    <div class="bubble" id="obBubble"></div>
+    <div class="ob-opts" id="obOpts"></div>
+    <button class="ob-back" id="obBack"></button>
+  </div>
+</div>
+
+<!-- ======================= MODALS ======================= -->
+<div class="modal" id="clinicModal" role="dialog" aria-modal="true" aria-labelledby="clinicT">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3 id="clinicT">أقرب عيادة إقلاع<small id="clinicLoc">حسب موقعك</small></h3>
+      <button class="x" data-close aria-label="إغلاق">✕</button>
+    </div>
+    <div class="place">
+      <div class="place-top"><b>🏥 عيادة علاج الاعتماد على التبغ · مركز الحسين للسرطان (KHCC)</b><span class="dist" id="khccDist"></span></div>
+      <p>الجبيهة، شارع الملكة رانيا (قرب الجامعة الأردنية)، عمّان · منذ 2008 · استشارة وإرشاد وأدوية ومتابعة</p>
+      <div class="place-act"><a class="tel" href="tel:+96265300460">📞 06-5300460 فرعي 4086</a><a class="tel" href="tel:+962778444517">📞 077-844-4517</a></div>
+    </div>
+    <div class="place">
+      <div class="place-top"><b>🏛️ عيادات الإقلاع عن التدخين · وزارة الصحة</b><span class="dist">23 عيادة</span></div>
+      <p>عيادات مجانية للمشورة والأدوية في مراكز الرعاية الصحية الأولية في مختلف المحافظات. اسأل عن أقرب عيادة لمنطقتك.</p>
+      <div class="place-act"><a class="tel" href="tel:+96265004546">📞 الخط الوطني لخدمات الإقلاع 06-5004546</a></div>
+    </div>
+    <p class="src">المصادر: نشرة عيادة KHCC على khcc.jo، وتصريح وزارة الصحة لقناة المملكة. المسافة تقريبية. تأكد من الأرقام قبل الاتصال.</p>
+    <div class="controls">
+      <button class="btn btn-blue" id="btnCopy">نسخ رقم KHCC</button>
+      <button class="btn btn-soft" data-close>إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="pharmModal" role="dialog" aria-modal="true" aria-labelledby="pharmT">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3 id="pharmT">احجز باقة الإقلاع<small>Click &amp; Collect · احجز واستلم من الصيدلية</small></h3>
+      <button class="x" data-close aria-label="إغلاق">✕</button>
+    </div>
+    <div class="pkg">
+      <div class="pkg-item">📟<b>جهاز CraveBreaker</b></div>
+      <div class="pkg-item">🩹<b>لصقات NRT</b><small>حسب تقييم الصيدلاني</small></div>
+      <div class="pkg-item">👩‍⚕️<b>استشارة</b><small>صيدلاني + طبيب</small></div>
+    </div>
+    <div id="pharmList" class="plist"></div>
+    <div class="book" id="bookBox">
+      <p class="book-for" id="bookFor"></p>
+      <div class="checks">
+        <label><input type="checkbox" id="cAdult"> عمري 18 سنة أو أكثر</label>
+        <label><input type="checkbox" id="cRisk"> لديّ حمل أو رضاعة، أو مرض قلبي، أو أتناول أدوية مزمنة</label>
+        <label><input type="checkbox" id="cConsent"> أوافق على استشارة الصيدلاني قبل الصرف</label>
+      </div>
+      <div class="form-warn" id="formWarn"></div>
+      <button class="btn btn-mint" id="btnBook" style="width:100%">تأكيد الحجز</button>
+    </div>
+    <div class="done-box" id="bookDone">
+      <div class="big">🎟️</div>
+      <b>تم الحجز</b>
+      <div class="code" id="bookCode">#CB-2026</div>
+      <p id="bookMsg"></p>
+      <div class="controls" style="justify-content:center"><button class="btn btn-soft" data-close>تم</button></div>
+    </div>
+    <p class="src">حجز تجريبي للعرض: الصيدليات الشريكة تُضاف بعد توقيع اتفاقيات الشراكة. يحدد الصيدلاني المنتج المناسب، والتطبيق لا يقترح جرعات.</p>
+  </div>
+</div>
+
+<!-- Naseem chat -->
+<div class="modal" id="chatModal" role="dialog" aria-modal="true" aria-labelledby="chatT">
+  <div class="sheet chat-sheet">
+    <div class="chat-head">
+      <div class="ch-bird" id="chatHeadBird"></div>
+      <div class="ch-t"><h3 id="chatT">نسيم · مرشدك الذكي</h3><small><span class="on-dot"></span> متاح الآن · ردود إرشادية وليست استشارة طبية</small></div>
+      <button class="x" data-close aria-label="إغلاق">✕</button>
+    </div>
+    <div class="chat-log" id="chatLog" aria-live="polite"></div>
+    <div class="quick" id="quick"></div>
+    <form class="chat-in" id="chatForm" autocomplete="off">
+      <input type="text" id="chatInput" placeholder="اكتب رسالتك لنسيم…" aria-label="رسالتك">
+      <button type="submit" class="send" aria-label="إرسال"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4 9 15M20 4l-6 16-5-5-5-3z"/></svg></button>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="communityModal" role="dialog" aria-modal="true" aria-labelledby="comT">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3 id="comT">مجتمع المقلعين<small>Peer Community</small></h3>
+      <button class="x" data-close aria-label="إغلاق">✕</button>
+    </div>
+    <div class="share-box">
+      <p id="shareText"></p>
+      <div class="controls" style="margin-top:8px">
+        <button class="btn btn-mint" id="btnShare">شارك إنجازك</button>
+        <button class="btn btn-soft" id="btnCopyShare">نسخ النص</button>
+      </div>
+    </div>
+    <div class="sec-title">قصص وتشجيعات <span class="lvl sim">🟡 محتوى توضيحي للعرض، وليست شهادات حقيقية</span></div>
+    <div class="feed" id="feed"></div>
+  </div>
+</div>
+
+<!-- End-of-day notification -->
+<div class="notif-wrap" id="notifWrap">
+  <div class="notif" role="dialog" aria-modal="true" aria-labelledby="notifT">
+    <div class="notif-app"><svg viewBox="0 0 64 64"><use href="#logo"/></svg><span>CraveBreaker</span><span>الآن</span></div>
+    <div class="notif-body">
+      <div class="notif-hero">
+        <div class="nb" id="notifBird"></div>
+        <div><h3 id="notifT">ملخص إنجازات اليوم 🎉</h3><p id="notifDay">اليوم 1 من رحلة الحرية</p></div>
+      </div>
+      <div class="nstats">
+        <div class="ns"><b id="nEp">0</b><small>لحظات تحكّم اليوم</small></div>
+        <div class="ns"><b id="nSaved">0.00</b><small>دينار وفّرتها اليوم</small></div>
+        <div class="ns"><b id="nStreak">0</b><small>أيام حماس متتالية</small></div>
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-top"><span>مستوى تحكمك بالرغبة</span><span id="ctrlLabel">—</span></div>
+        <div class="ctrl-bar"><i id="ctrlBar"></i></div>
+      </div>
+      <p class="notif-msg" id="notifMsg"></p>
+      <div class="controls"><button class="btn btn-mint" id="notifOk">رائع! 💪</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- detection overlay -->
+<div class="detect" id="detect"><div>
+  <div class="di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 12h3l3-8 4 16 3-8h5"/></svg></div>
+  <b>تم رصد سحبة</b><small id="detectDelta"></small>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<canvas id="confetti"></canvas>
+
+<!-- hidden tuning panel (press D or triple-tap the logo) -->
+<div class="card debug" id="debug">
+  <h4><span>لوحة المعايرة (مخفية)</span><button data-dbg-close>✕</button></h4>
+  <label>عتبة السحب: <b id="thVal" class="ltr">0.35</b> hPa</label>
+  <input type="range" id="thRange" min="0.05" max="1.50" step="0.05" value="0.35">
+  <div class="row">
+    <button id="dbgCal">إعادة معايرة (CAL)</button>
+    <button id="dbgPing">PING</button>
+    <button id="dbgDemo">تحميل بيانات العرض</button>
+    <button id="dbgReset">مسح الكل + الترحيب</button>
+  </div>
+  <label>سعر العلبة (د.أ) <input type="number" id="packPrice" step="0.05" min="0"> · سجائر/علبة <input type="number" id="packSize" step="1" min="1"></label>
+  <label>آخر سطر من الجهاز:</label>
+  <pre id="lastLine">—</pre>
+</div>
+
+<script>
+{
+  'use strict';
+
+  /* ===================== CONFIG ===================== */
+  const CFG = {
+    INHALE_MS: 4000,
+    EXHALE_MS: 6000,
+    CYCLES: 3,
+    SCALE_MIN: 0.58,
+    SCALE_MAX: 1.0,
+    BAUD: 115200,
+    PULL_WINDOW_MS: 60000,    // السحبات خلال آخر 60 ثانية تحدد حدة الرغبة
+    DEFAULT_PACK_PRICE: 2.50, // افتراض للعرض فقط: عدّلوه من لوحة المعايرة بالسعر الفعلي
+    DEFAULT_PACK_SIZE: 20,
+    STORAGE_KEY: 'cravebreaker_v2',
+    NO_DATA_MS: 4000,
+    STREAK_DAYS: 8
+  };
+
+  const $ = id => document.getElementById(id);
+  const screens = { home: $('home'), session: $('session'), result: $('result') };
+  let current = 'home';
+
+  /* ===================== DATES ===================== */
+  const pad = n => String(n).padStart(2, '0');
+  const dkey = t => { const x = new Date(t); return `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}`; };
+  const kdate = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+  const addDays = (k, n) => { const x = kdate(k); x.setDate(x.getDate() + n); return dkey(x); };
+  const diffDays = (a, b) => Math.round((kdate(b) - kdate(a)) / 864e5);
+  const todayKey = () => dkey(Date.now());
+
+  /* ===================== STORAGE ===================== */
+  const store = {
+    load() { try { return JSON.parse(localStorage.getItem(CFG.STORAGE_KEY)) || null; } catch { return null; } },
+    save(o) { try { localStorage.setItem(CFG.STORAGE_KEY, JSON.stringify(o)); } catch {} }
+  };
+  const blankDB = () => ({ profile: null, sessions: [], patches: {}, myPosts: [], packPrice: CFG.DEFAULT_PACK_PRICE, packSize: CFG.DEFAULT_PACK_SIZE });
+  let DB = Object.assign(blankDB(), store.load() || {});
+  const save = () => store.save(DB);
+
+  const costPerEpisode = () => (DB.packPrice || 0) / Math.max(1, DB.packSize || 20);
+  const sessionsOn = k => DB.sessions.filter(s => dkey(s.t) === k);
+  const dayIndex = k => DB.profile ? diffDays(DB.profile.start, k) + 1 : 1;
+
+  const LEVELS = {
+    light: { e: '🟢', t: 'خفيفة', c: '#059669' },
+    med:   { e: '🟡', t: 'متوسطة', c: '#B45309' },
+    sev:   { e: '🔴', t: 'شديدة', c: '#DC2626' }
+  };
+  const levelOf = n => n >= 3 ? 'sev' : n === 2 ? 'med' : 'light';
+
+  /* ===================== BIRD MASCOT (original SVG) ===================== */
+  function birdSVG() {
+    return `<svg class="bird" viewBox="0 0 120 120" aria-hidden="true">
+      <ellipse cx="60" cy="112" rx="26" ry="5" fill="#0F172A" opacity=".08"/>
+      <g class="whole">
+        <path d="M28 76 C 14 80, 8 92, 12 98 C 20 96, 28 90, 34 84 Z" fill="#0369A1"/>
+        <g class="tuft"><path d="M57 30 C 50 16, 58 8, 64 10 C 64 18, 62 24, 60 30 Z" fill="#10B981"/><path d="M62 30 C 66 18, 76 16, 80 20 C 74 24, 68 28, 64 32 Z" fill="#34D399"/></g>
+        <ellipse cx="60" cy="66" rx="38" ry="37" fill="url(#birdBody)"/>
+        <ellipse cx="62" cy="80" rx="24" ry="20" fill="#ECFDF5"/>
+        <path d="M70 79 c 4 -2 8 -2 12 0 M66 86 c 4 -2 8 -2 12 0" stroke="#A7F3D0" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path class="wing" d="M86 62 C 102 66, 104 84, 92 92 C 86 90, 82 80, 82 70 Z" fill="url(#birdWing)"/>
+        <g class="eyes">
+          <circle cx="47" cy="56" r="10.5" fill="#fff"/><circle cx="73" cy="56" r="10.5" fill="#fff"/>
+          <circle cx="49" cy="58" r="5.6" fill="#0F172A"/><circle cx="71" cy="58" r="5.6" fill="#0F172A"/>
+          <circle cx="51" cy="55.5" r="2" fill="#fff"/><circle cx="73" cy="55.5" r="2" fill="#fff"/>
+        </g>
+        <circle cx="38" cy="70" r="5" fill="#FDA4AF" opacity=".55"/><circle cx="82" cy="70" r="5" fill="#FDA4AF" opacity=".55"/>
+        <path d="M54 67 L66 67 L60 75 Z" fill="#F59E0B" stroke="#EA580C" stroke-width="1.2" stroke-linejoin="round"/>
+        <path d="M50 101 v6 M47 107 h6 M70 101 v6 M67 107 h6" stroke="#F59E0B" stroke-width="3" stroke-linecap="round"/>
+      </g>
+    </svg>`;
+  }
+  $('coachBird').innerHTML = birdSVG();
+  $('obBird').innerHTML = birdSVG();
+  $('notifBird').innerHTML = birdSVG();
+  ['splashBird', 'chatHeadBird', 'chatBtnBird'].forEach(id => { $(id).innerHTML = birdSVG(); });
+  function cheerBird(el) {
+    const b = el.querySelector('.bird'); if (!b) return;
+    b.classList.remove('cheer'); void b.getBoundingClientRect(); b.classList.add('cheer');
+    setTimeout(() => b.classList.remove('cheer'), 1600);
+  }
+
+  /* ===================== UI HELPERS ===================== */
+  function show(name) {
+    Object.entries(screens).forEach(([k, el]) => el.classList.toggle('active', k === name));
+    current = name;
+    document.body.classList.toggle('no-coach', name === 'session' || $('onboard').classList.contains('show'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  let toastT;
+  function toast(msg, warn = false, ms = 3200) {
+    const t = $('toast');
+    t.textContent = msg; t.classList.toggle('warn', warn); t.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms);
+  }
+  function setStatus(kind, text) {
+    $('statusPill').className = 'pill' + (kind ? ' ' + kind : '');
+    $('statusText').textContent = text;
+  }
+  function countUp(el, to, decimals = 0, dur = 900) {
+    const from = parseFloat(el.textContent) || 0, t0 = performance.now();
+    const step = now => {
+      const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = (from + (to - from) * e).toFixed(decimals);
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* ===================== CONFETTI ===================== */
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function confetti(n = 140) {
+    if (reduceMotion) return;
+    const cv = $('confetti'), c = cv.getContext('2d'), dpr = window.devicePixelRatio || 1;
+    const W = cv.clientWidth, H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr; c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cols = ['#0284C7', '#10B981', '#F59E0B', '#38BDF8', '#34D399', '#FDBA74'];
+    const ps = Array.from({ length: n }, () => ({
+      x: W / 2 + (Math.random() - .5) * W * .3, y: H * .28,
+      vx: (Math.random() - .5) * 9, vy: -Math.random() * 9 - 3,
+      r: Math.random() * 6 + 4, a: Math.random() * 6, va: (Math.random() - .5) * .3,
+      col: cols[(Math.random() * cols.length) | 0], round: Math.random() < .3
+    }));
+    const t0 = performance.now();
+    const frame = now => {
+      const el = now - t0;
+      c.clearRect(0, 0, W, H);
+      ps.forEach(p => {
+        p.vy += .22; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.a += p.va;
+        c.save(); c.translate(p.x, p.y); c.rotate(p.a); c.globalAlpha = Math.max(0, 1 - el / 2800); c.fillStyle = p.col;
+        if (p.round) { c.beginPath(); c.arc(0, 0, p.r / 2, 0, 7); c.fill(); } else c.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2);
+        c.restore();
+      });
+      if (el < 2800) requestAnimationFrame(frame); else c.clearRect(0, 0, W, H);
+    };
+    requestAnimationFrame(frame);
+  }
+
+  /* ===================== COACH ===================== */
+  const COACH_MSGS = [
+    'كل سحبة هواء بدل سحبة دخان هي <b>انتصار صغير</b>. أنا فخور بك!',
+    'الرغبة موجة ترتفع ثم تهدأ. <b>تنفّس معها</b> ولا تطاردها.',
+    'نصيحة اليوم: احمل زجاجة ماء معك. الرشفات البطيئة تساعدك في لحظة الرغبة.',
+    'هل تعرف محفّزاتك؟ القهوة، التوتر، الأصدقاء… <b>لاحظها</b> واستعد لها.',
+    'ثلاث دورات تنفس فقط (30 ثانية) قد تغيّر قرارك في تلك اللحظة.',
+    'إذا تكررت الرغبة الشديدة، فطلب المساعدة من عيادة الإقلاع <b>قوة وليس ضعفاً</b>.'
+  ];
+  let coachT, coachIdx = 0;
+  function coachSay(html, { cheer = false, ms = 7000, action = null } = {}) {
+    const b = $('coachBubble');
+    $('coachText').innerHTML = html + (action ? `<br><button id="coachAct">${action.label}</button>` : '');
+    if (action) $('coachAct').onclick = action.fn;
+    b.classList.add('show');
+    if (cheer) cheerBird($('coach'));
+    clearTimeout(coachT);
+    coachT = setTimeout(() => b.classList.remove('show'), ms);
+  }
+  function coachContext() {
+    const tk = todayKey();
+    if (!sessionsOn(tk).length) {
+      return coachSay('يومك متجمد ❄️ حتى الآن. <b>جلسة تنفس واحدة</b> تكفي لإذابة الجليد وإشعال يومك 🔥', { ms: 9000, action: { label: 'ابدأ جلسة الآن', fn: () => startSession('manual') } });
+    }
+    coachSay(COACH_MSGS[coachIdx++ % COACH_MSGS.length]);
+  }
+  $('coachBird').addEventListener('click', () => openChat());
+  setInterval(() => {
+    if (current === 'home' && !document.body.classList.contains('no-coach') && !$('coachBubble').classList.contains('show') && !document.querySelector('.modal.show,.notif-wrap.show')) {
+      coachSay(COACH_MSGS[coachIdx++ % COACH_MSGS.length], { ms: 6000 });
+    }
+  }, 25000);
+
+  /* ===================== ONBOARDING ===================== */
+  const PROFILE_TXT = {
+    usage: { cig: 'سجائر تقليدية', vape: 'فيب (Vape)', both: 'سجائر + فيب' },
+    years: { lt1: 'أقل من سنة', '1-5': '1–5 سنوات', gt5: 'أكثر من 5 سنوات' },
+    resolve: { yes: 'عازم على الإقلاع', try: 'يبدأ بالتخفيف' }
+  };
+  const OB_STEPS = [
+    { say: 'مرحباً! أنا <b>نسيم</b> 🐦 مدربك الصغير في CraveBreaker.<br>سأسألك <b>3 أسئلة سريعة</b> لنبدأ رحلتك معاً.', opts: [{ v: 'go', t: 'لنبدأ!', p: true }] },
+    { key: 'usage', q: 'السؤال 1 من 3', say: 'ماذا تستخدم عادةً؟', opts: [{ v: 'cig', t: '🚬 السجائر التقليدية' }, { v: 'vape', t: '💨 الفيب (Vape)' }, { v: 'both', t: '🔁 كلاهما' }] },
+    { key: 'years', q: 'السؤال 2 من 3', say: 'منذ كم سنة وأنت تدخن؟', opts: [{ v: 'lt1', t: 'أقل من سنة' }, { v: '1-5', t: '1–5 سنوات' }, { v: 'gt5', t: 'أكثر من 5 سنوات' }] },
+    { key: 'resolve', q: 'السؤال 3 من 3', say: 'هل أنت عازم على التخلص من هذه العادة والبدء برحلة الحرية؟', opts: [{ v: 'yes', t: '💪 نعم، أنا عازم وأبدأ اليوم' }, { v: 'try', t: '🌱 أريد أن أبدأ بالتخفيف أولاً' }] }
+  ];
+  let obStep = 0;
+  const obAns = {};
+  function obRender() {
+    const dots = [...$('obDots').children];
+    dots.forEach((d, i) => d.className = i < obStep ? 'done' : i === obStep ? 'on' : '');
+    const bubble = $('obBubble'), opts = $('obOpts');
+    if (obStep < OB_STEPS.length) {
+      const s = OB_STEPS[obStep];
+      bubble.innerHTML = (s.q ? `<span class="ob-q">${s.q}</span>` : '') + s.say;
+      opts.className = 'ob-opts ' + (s.opts.length === 3 ? 'three' : s.opts.length === 2 ? 'two' : '');
+      opts.innerHTML = s.opts.map(o => `<button class="ob-opt${o.p ? ' primary' : ''}" data-v="${o.v}">${o.t}</button>`).join('');
+      $('obBack').textContent = obStep > 0 ? 'رجوع' : '';
+      $('obSkip').style.visibility = 'visible';
+    } else {
+      bubble.innerHTML = obFinalMsg();
+      opts.className = 'ob-opts';
+      opts.innerHTML = `<button class="ob-opt primary" data-v="finish">افتح لوحة التحكم 🚀</button>`;
+      $('obBack').textContent = 'رجوع';
+      $('obSkip').style.visibility = 'hidden';
+      cheerBird($('obBird')); confetti();
+    }
+  }
+  function obFinalMsg() {
+    const r = obAns.resolve === 'yes'
+      ? '🎉 <b>قرار رائع!</b> يومك الأول في رحلة الحرية بدأ الآن.'
+      : '🌱 <b>خطوة ممتازة!</b> البدء بالتخفيف بداية حقيقية، وسأكون معك في كل لحظة رغبة.';
+    const u = { cig: 'عندما تأتيك الرغبة، اسحب نفساً من هواء الغرفة عبر الجهاز، وسنكسرها معاً بتمرين تنفس.',
+                vape: 'الفيب يرتبط غالباً بسحبات متكررة طوال اليوم؛ الجهاز يعطي يدك وفمك حركة مشابهة لكن بهواء الغرفة فقط.',
+                both: 'سنتابع الرغبة معاً، وكل سحبة هواء بدل سحبة دخان أو فيب تُحسب لك.' }[obAns.usage] || '';
+    const y = obAns.years === 'gt5' ? '<br>بعد سنوات طويلة، يفيدك أن تجمع بين التطبيق وعيادة الإقلاع.' : '';
+    return `${r}<br>${u}${y}`;
+  }
+  $('obOpts').addEventListener('click', e => {
+    const b = e.target.closest('.ob-opt'); if (!b) return;
+    const v = b.dataset.v;
+    if (v === 'finish') return finishOnboarding(false);
+    if (obStep > 0 && obStep < OB_STEPS.length) obAns[OB_STEPS[obStep].key] = v;
+    obStep++;
+    cheerBird($('obBird'));
+    obRender();
+  });
+  $('obBack').addEventListener('click', () => { if (obStep > 0) { obStep--; obRender(); } });
+  $('obSkip').addEventListener('click', () => { seedDemo(); finishOnboarding(true); });
+
+  function openOnboarding() {
+    obStep = 0; Object.keys(obAns).forEach(k => delete obAns[k]);
+    $('onboard').classList.add('show');
+    document.body.classList.add('no-coach');
+    obRender();
+  }
+  function finishOnboarding(demo) {
+    if (!demo) {
+      DB = Object.assign(blankDB(), { packPrice: DB.packPrice, packSize: DB.packSize });
+      DB.profile = { usage: obAns.usage || 'both', years: obAns.years || '1-5', resolve: obAns.resolve || 'yes', start: todayKey(), demo: false };
+      save();
+    }
+    $('onboard').classList.remove('show');
+    show('home');
+    renderAll();
+    setTimeout(startGeo, 900);
+    setTimeout(() => {
+      if (demo) coachSay('وضع العرض جاهز ✅ <b>بيانات توضيحية</b> لأيام سابقة. اضغط على أي يوم لمعاينته!', { cheer: true, ms: 8000 });
+      else coachSay(`أهلاً بك في <b>اليوم 1</b>! أنا هنا في الزاوية دائماً. اضغط عليّ لنتحدث متى احتجت 💙`, { cheer: true, ms: 8000 });
+    }, 500);
+  }
+
+  function seedDemo() {
+    const tk = todayKey(), start = addDays(tk, -5);
+    const plan = [ ['light', 'med'], ['light', 'sev', 'med'], [], ['light'], ['med', 'light'] ];
+    const pullsFor = { light: 1, med: 2, sev: 3 };
+    const sessions = [];
+    plan.forEach((lv, i) => {
+      const k = addDays(start, i);
+      lv.forEach((l, j) => {
+        const d = kdate(k); d.setHours(10 + j * 4, 15 + j * 7);
+        sessions.push({ t: d.getTime(), pulls: pullsFor[l], level: l, src: 'demo', completed: true });
+      });
+    });
+    const patches = {};
+    [0, 1, 3, 4].forEach(i => { patches[addDays(start, i)] = { on: true, time: '08:30', dual: false }; });
+    patches[addDays(start, 1)].dual = true;
+    DB = Object.assign(blankDB(), { packPrice: DB.packPrice, packSize: DB.packSize, sessions, patches,
+      profile: { usage: 'both', years: '1-5', resolve: 'yes', start, demo: true } });
+    save();
+  }
+
+  /* ===================== RENDER: profile, stats, streak ===================== */
+  function renderProfile() {
+    const p = DB.profile; if (!p) { $('profileChips').innerHTML = ''; return; }
+    $('profileChips').innerHTML =
+      (p.demo ? '<span class="chip demo">🟡 بيانات عرض توضيحية</span>' : '') +
+      `<span class="chip">${PROFILE_TXT.usage[p.usage]}</span><span class="chip">${PROFILE_TXT.years[p.years]}</span><span class="chip">${PROFILE_TXT.resolve[p.resolve]}</span>`;
+  }
+  function renderStats() {
+    const n = DB.sessions.length;
+    $('stEpisodes').textContent = n;
+    $('stSaved').innerHTML = (n * costPerEpisode()).toFixed(2) + '<em>د.أ</em>';
+    const last = DB.sessions[n - 1];
+    $('stLast').innerHTML = last ? `${LEVELS[last.level].e} ${LEVELS[last.level].t}` : '—';
+    $('savedNote').textContent = `تقدير: سيجارة لكل جلسة (علبة ${(+DB.packPrice).toFixed(2)} د.أ / ${DB.packSize})`;
+  }
+  function streakCount() {
+    const tk = todayKey();
+    let k = sessionsOn(tk).length ? tk : addDays(tk, -1), n = 0;
+    while (DB.profile && diffDays(DB.profile.start, k) >= 0 && sessionsOn(k).length) { n++; k = addDays(k, -1); }
+    return n;
+  }
+  let selectedDay = null;
+  function renderStreak(meltToday = false) {
+    if (!DB.profile) return;
+    const tk = todayKey(), tIdx = dayIndex(tk);
+    const first = Math.max(1, tIdx - (CFG.STREAK_DAYS - 1));
+    let html = '';
+    for (let i = first; i < first + CFG.STREAK_DAYS; i++) {
+      const k = addDays(DB.profile.start, i - 1);
+      const isToday = k === tk, future = k > tk;
+      const n = future ? 0 : sessionsOn(k).length;
+      const st = future ? 'future' : n ? 'fire' : 'ice';
+      const ic = st === 'fire' ? '🔥' : st === 'ice' ? '❄️' : '🔒';
+      html += `<button class="day ${st}${isToday ? ' today' : ''}${selectedDay === k ? ' sel' : ''}${isToday && meltToday ? ' melt' : ''}" data-k="${k}" data-i="${i}" aria-label="اليوم ${i}">
+        <span class="ic">${ic}</span><span class="dl"><b>اليوم </b>${i}</span></button>`;
+    }
+    $('days').innerHTML = html;
+    $('dayTitle').textContent = `اليوم ${tIdx} بدون تدخين`;
+    const s = streakCount();
+    $('streakCount').textContent = `🔥 ${s} ${s === 1 ? 'يوم' : s === 2 ? 'يومان' : 'أيام'} متتالية`;
+    if (!selectedDay) $('dayDetail').innerHTML = dayDetail(tk);
+  }
+  function dayDetail(k) {
+    const i = dayIndex(k), tk = todayKey();
+    if (k > tk) return `<b>اليوم ${i}</b> 🔒 يوم قادم. استمر في رحلتك لتصل إليه!`;
+    const ss = sessionsOn(k), p = DB.patches[k];
+    const patchTxt = p && p.on ? ` · 🩹 لصقة مسجلة${p.dual ? ' (⚠️ استخدام مزدوج)' : ''}` : '';
+    if (!ss.length) return `<b>اليوم ${i}${k === tk ? ' (اليوم)' : ''}</b> ❄️ يوم متجمد: لم تُسجَّل جلسات${patchTxt}.<br>جلسة تنفس واحدة تكفي لإذابة الجليد 🔥`;
+    const cnt = { light: 0, med: 0, sev: 0 }; ss.forEach(s => cnt[s.level]++);
+    return `<b>اليوم ${i}${k === tk ? ' (اليوم)' : ''}</b> 🔥 ${ss.length} ${ss.length === 1 ? 'لحظة تحكّم' : 'لحظات تحكّم'} · وفّرت <b>${(ss.length * costPerEpisode()).toFixed(2)} د.أ</b>${patchTxt}<br>الحدة: 🟢 ${cnt.light} · 🟡 ${cnt.med} · 🔴 ${cnt.sev}`;
+  }
+  $('days').addEventListener('click', e => {
+    const b = e.target.closest('.day'); if (!b) return;
+    selectedDay = b.dataset.k;
+    $('dayDetail').innerHTML = dayDetail(selectedDay);
+    [...$('days').children].forEach(d => d.classList.toggle('sel', d === b));
+    if (b.classList.contains('ice')) coachSay(`<b>اليوم ${b.dataset.i}</b> متجمد ❄️ لا بأس، كل يوم بداية جديدة. جلسة واحدة تذيب الجليد!`, { ms: 6000 });
+    else if (b.classList.contains('fire')) coachSay(`<b>اليوم ${b.dataset.i}</b> مشتعل 🔥 هكذا يكون الحماس!`, { cheer: true, ms: 5000 });
+  });
+
+  /* ===================== PATCH TRACKER (Gap 3) ===================== */
+  function renderPatch() {
+    const tk = todayKey(), p = DB.patches[tk];
+    const on = !!(p && p.on);
+    $('btnPatch').classList.toggle('on', on);
+    $('btnPatch').textContent = on ? 'تم وضع اللصقة اليوم ✓' : 'تم وضع اللصقة اليوم';
+    $('patchTime').textContent = on ? `سُجّلت الساعة ${p.time}` : 'لم تُسجَّل بعد';
+    $('safety').classList.toggle('show', on);
+    $('dualNo').className = on && p.dual === false ? 'sel-no' : '';
+    $('dualYes').className = on && p.dual === true ? 'sel-yes' : '';
+    const msg = $('safetyMsg');
+    if (on && p.dual === false) { msg.className = 'safety-msg ok'; msg.textContent = 'ممتاز ✅ لا استخدام مزدوج اليوم. استمر!'; }
+    else if (on && p.dual === true) { msg.className = 'safety-msg warn'; msg.textContent = '⚠️ تجنّب الجمع بين اللصقة والتدخين أو الفيب (الاستخدام المزدوج). إذا تكرر ذلك، تواصل مع الصيدلي أو عيادة الإقلاع لمراجعة خطتك.'; }
+    else msg.className = 'safety-msg';
+    let dots = '', n = 0;
+    for (let i = 6; i >= 0; i--) {
+      const k = addDays(tk, -i), ok = DB.patches[k] && DB.patches[k].on;
+      if (ok) n++;
+      dots += `<i class="${ok ? 'on' : ''}" title="${k}"></i>`;
+    }
+    $('adh').innerHTML = `<span>الالتزام آخر 7 أيام:</span>${dots}<b>${n}/7</b>`;
+  }
+  $('btnPatch').addEventListener('click', () => {
+    const tk = todayKey(), p = DB.patches[tk];
+    if (p && p.on) { delete DB.patches[tk]; }
+    else {
+      const d = new Date();
+      DB.patches[tk] = { on: true, time: `${pad(d.getHours())}:${pad(d.getMinutes())}`, dual: null };
+      coachSay('سجّلت لصقة اليوم 🩹 أجب عن <b>فحص الأمان</b> القصير تحتها.', { cheer: true, ms: 5000 });
+    }
+    save(); renderPatch();
+  });
+  $('dualNo').addEventListener('click', () => { const p = DB.patches[todayKey()]; if (!p) return; p.dual = false; save(); renderPatch(); coachSay('رائع! التزامك اليوم <b>نظيف</b> 💪', { cheer: true, ms: 4500 }); });
+  $('dualYes').addEventListener('click', () => { const p = DB.patches[todayKey()]; if (!p) return; p.dual = true; save(); renderPatch(); coachSay('شكراً لصراحتك 💙 الانتكاسات جزء من الرحلة. الأهم أن نعرف ونعدّل الخطة مع المختص.', { ms: 7000 }); });
+
+  function renderAll() { renderProfile(); renderStats(); renderStreak(); renderPatch(); }
+
+  /* ===================== WEB SERIAL (unchanged logic) ===================== */
+  const serial = { port: null, reader: null, keep: false, buf: '', lastData: 0, threshold: 0.35, ready: false };
+  const enc = new TextEncoder();
+  const supported = 'serial' in navigator;
+
+  if (!supported) $('statusPill').classList.add('hidden');   // phones: stay quiet
+
+  async function connect() {
+    if (serial.port) return disconnect();
+    try {
+      setStatus('busy', 'اختر منفذ الجهاز...');
+      const port = await navigator.serial.requestPort();
+      await port.open({ baudRate: CFG.BAUD, bufferSize: 4096 });
+      // DTR/RTS = false: ESP32 runs normally (not held in bootloader)
+      try { await port.setSignals({ dataTerminalReady: false, requestToSend: false }); } catch {}
+      serial.port = port; serial.keep = true; serial.buf = ''; serial.lastData = performance.now(); serial.ready = false;
+      setConnectedUI(true);
+      setStatus('busy', 'جارٍ الاتصال…');
+      readLoop();
+      setTimeout(() => send('PING'), 600);
+    } catch (e) {
+      console.warn(e);
+      serial.port = null;
+      setConnectedUI(false);
+      if (e && e.name === 'NotFoundError') setStatus('', 'لم يتم اختيار منفذ');
+      else if (e && e.name === 'InvalidStateError') { setStatus('err', 'المنفذ مفتوح مسبقاً'); toast('المنفذ مستخدم: أغلق Serial Monitor في Arduino IDE ثم حاول مجدداً', true, 5000); }
+      else { setStatus('err', 'تعذّر فتح المنفذ'); toast('تعذّر فتح المنفذ: أغلق Serial Monitor وأعد توصيل الكابل', true, 5000); }
+    }
+  }
+
+  async function readLoop() {
+    const dec = new TextDecoder();
+    while (serial.port && serial.port.readable && serial.keep) {
+      serial.reader = serial.port.readable.getReader();
+      try {
+        while (true) {
+          const { value, done } = await serial.reader.read();
+          if (done) break;
+          if (value) onChunk(dec.decode(value, { stream: true }));
+        }
+      } catch (e) {
+        console.warn('read error', e);
+        break;
+      } finally {
+        try { serial.reader.releaseLock(); } catch {}
+      }
+    }
+    if (serial.keep) { // unexpected end (cable pulled)
+      await cleanup();
+      setStatus('err', 'انقطع الاتصال بالجهاز');
+      toast('انقطع اتصال USB: أعد توصيل الكابل واضغط "ربط الجهاز"', true, 5000);
+    }
+  }
+
+  async function cleanup() {
+    serial.keep = false;
+    try { if (serial.reader) await serial.reader.cancel(); } catch {}
+    try { if (serial.port) await serial.port.close(); } catch {}
+    serial.port = null; serial.reader = null; serial.ready = false;
+    setConnectedUI(false);
+  }
+  async function disconnect() {
+    await cleanup();
+    setStatus('', 'الجهاز غير متصل');
+  }
+
+  async function send(cmd) {
+    if (!serial.port || !serial.port.writable) return;
+    const w = serial.port.writable.getWriter();
+    try { await w.write(enc.encode(cmd + '\n')); } catch (e) { console.warn(e); } finally { w.releaseLock(); }
+  }
+
+  function setConnectedUI(on) {
+    $('liveRow').classList.toggle('show', on);
+    $('statusPill').title = on ? 'اضغط لفصل الجهاز' : 'اضغط لربط جهاز CraveBreaker عبر USB (Chrome / Edge على الحاسوب)';
+    if (!on) { spark.data.length = 0; drawSpark(); } else setTimeout(drawSpark, 60);
+  }
+
+  function onChunk(text) {
+    serial.lastData = performance.now();
+    serial.buf += text;
+    let i;
+    while ((i = serial.buf.indexOf('\n')) >= 0) {
+      const line = serial.buf.slice(0, i).trim();
+      serial.buf = serial.buf.slice(i + 1);
+      if (line) onLine(line);
+    }
+    if (serial.buf.length > 4096) serial.buf = '';
+  }
+
+  function onLine(line) {
+    $('lastLine').textContent = line;
+    if (line === 'PULL_DETECTED') return onInhale(null); // legacy compatibility
+    if (line[0] !== '{') return;
+    let m; try { m = JSON.parse(line); } catch { return; }
+    switch (m.event) {
+      case 'reading': onReading(m); break;
+      case 'inhale': onInhale(m.delta); break;
+      case 'exhale_warning': toast('⚠️ رجاءً لا تزفر داخل الجهاز: الاستخدام بالشهيق فقط', true, 4000); break;
+      case 'status': onStatus(m); break;
+      case 'config': if (m.th != null) setThresholdUI(m.th); break;
+      case 'pong': if (m.th != null) setThresholdUI(m.th); if (m.ok) markLive(); break;
+      case 'boot': setStatus('busy', 'تم تشغيل الجهاز...'); break;
+      case 'i2c_scan': console.info('I2C scan:', m.found); if (!m.found.length) toast('لا يوجد أي جهاز على I2C: افحص أسلاك SDA/SCL والطاقة', true, 5000); break;
+    }
+  }
+
+  function onStatus(m) {
+    switch (m.state) {
+      case 'calibrating': serial.ready = false; setStatus('cal', 'معايرة الحساس... لا تسحب الآن'); $('devSub').textContent = 'معايرة خط الأساس لضغط القاعة (ثانيتان): اترك الجهاز ساكناً.'; break;
+      case 'ready':
+        if (m.th != null) setThresholdUI(m.th);
+        markLive();
+        $('devSub').textContent = `الحساس جاهز · العنوان ${m.addr || ''} · ضوضاء القراءة ≈ ${(m.noise ?? 0).toFixed(3)} hPa`;
+        break;
+      case 'sensor_found': $('devSub').textContent = `تم العثور على الحساس على العنوان ${m.addr} (chip ${m.chip})`; break;
+      case 'sensor_missing': serial.ready = false; setStatus('err', 'الحساس غير موجود'); $('devSub').textContent = 'لم يتم العثور على BMP280 على 0x76 أو 0x77: افحص الأسلاك الأربعة.'; break;
+      case 'sensor_lost': serial.ready = false; setStatus('err', 'انقطع الحساس'); $('devSub').textContent = 'قراءات غير صالحة من الحساس: جارٍ إعادة المحاولة تلقائياً.'; break;
+      case 'unknown_chip': toast(`شريحة غير معروفة على ${m.addr} (ID ${m.chip})`, true); break;
+      case 'rebaseline': console.info('baseline re-anchored'); break;
+    }
+  }
+
+  function markLive() {
+    serial.ready = true;
+    setStatus('live', 'الجهاز متصل ✓');
+  }
+
+  function onReading(m) {
+    if (!serial.ready) markLive();
+    $('roP').textContent = m.p.toFixed(2);
+    $('roB').textContent = m.base.toFixed(2);
+    const d = m.delta;
+    $('roD').textContent = (d >= 0 ? '+' : '') + d.toFixed(3);
+    $('roD').style.color = d <= -serial.threshold ? 'var(--mint-d)' : d >= serial.threshold ? '#B45309' : '';
+    if (m.th != null && Math.abs(m.th - serial.threshold) > 0.001) setThresholdUI(m.th);
+    spark.data.push(d);
+    if (spark.data.length > spark.max) spark.data.shift();
+    scheduleSpark();
+  }
+
+  function setThresholdUI(th) {
+    serial.threshold = +th;
+    $('thVal').textContent = (+th).toFixed(2);
+    $('thRange').value = th;
+    $('sparkLegend').textContent = `Δ pressure · threshold −${(+th).toFixed(2)} hPa`;
+  }
+
+  // watchdog: connected but silent
+  setInterval(() => {
+    if (serial.port && performance.now() - serial.lastData > CFG.NO_DATA_MS) {
+      serial.ready = false;
+      setStatus('err', 'لا توجد بيانات من الجهاز');
+      $('devSub').textContent = 'المنفذ مفتوح لكن لا تصل بيانات: تأكد من رفع الكود، وسرعة 115200، أو اضغط زر EN/RST على اللوحة.';
+    }
+  }, 1000);
+
+  if (supported) {
+    navigator.serial.addEventListener('disconnect', e => {
+      if (serial.port && e.target === serial.port) { cleanup(); setStatus('err', 'تم فصل كابل USB'); }
+    });
+  }
+
+  /* ===================== SPARKLINE ===================== */
+  const spark = { data: [], max: 150, pending: false, cv: $('spark') };
+  function scheduleSpark() { if (!spark.pending) { spark.pending = true; requestAnimationFrame(() => { spark.pending = false; drawSpark(); }); } }
+  function drawSpark() {
+    const cv = spark.cv, dpr = window.devicePixelRatio || 1;
+    const w = cv.clientWidth, h = cv.clientHeight;
+    if (!w || !h) return;
+    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    const c = cv.getContext('2d');
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    c.clearRect(0, 0, w, h);
+    const th = serial.threshold;
+    const peak = Math.max(th * 1.6, ...spark.data.map(v => Math.abs(v)), 0.1);
+    const y = v => h / 2 - (v / peak) * (h / 2 - 6);
+    c.strokeStyle = '#CBD5E1'; c.lineWidth = 1; c.setLineDash([]);
+    c.beginPath(); c.moveTo(0, y(0)); c.lineTo(w, y(0)); c.stroke();
+    c.strokeStyle = '#10B981'; c.setLineDash([5, 4]);
+    c.beginPath(); c.moveTo(0, y(-th)); c.lineTo(w, y(-th)); c.stroke();
+    c.setLineDash([]);
+    if (spark.data.length < 2) return;
+    const n = spark.max;
+    c.beginPath();
+    spark.data.forEach((v, i) => {
+      const x = w - (spark.data.length - 1 - i) * (w / (n - 1));
+      i ? c.lineTo(x, y(v)) : c.moveTo(x, y(v));
+    });
+    c.strokeStyle = '#0284C7'; c.lineWidth = 2.2; c.lineJoin = 'round'; c.stroke();
+    const lv = spark.data[spark.data.length - 1];
+    c.fillStyle = lv <= -th ? '#10B981' : '#0284C7';
+    c.beginPath(); c.arc(w - 3, y(lv), 3.5, 0, Math.PI * 2); c.fill();
+  }
+  window.addEventListener('resize', drawSpark);
+
+  /* ===================== PULLS → MAGIC MOMENT ===================== */
+  const pulls = [];          // timestamps of detected pulls (sensor or simulated)
+  let starting = false;
+  function registerPull() {
+    const now = Date.now();
+    pulls.push(now);
+    while (pulls.length && now - pulls[0] > 5 * 60000) pulls.shift();
+    return now;
+  }
+  function onInhale(delta) {
+    if ($('onboard').classList.contains('show')) return;
+    registerPull();
+    if (current === 'session') return bumpPull('sensor');
+    if (current !== 'home' || starting) return;
+    starting = true;
+    document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
+    $('notifWrap').classList.remove('show');
+    const det = $('detect');
+    $('detectDelta').textContent = delta != null ? `Δ ${(+delta).toFixed(2)} hPa` : '';
+    det.classList.add('show');
+    setTimeout(() => { det.classList.remove('show'); starting = false; startSession('live', delta); }, 900);
+  }
+  function simPull() {
+    if (current === 'session') { registerPull(); return bumpPull('sim'); }
+    if (current !== 'home' || starting) return;
+    registerPull();
+    startSession('sim');
+  }
+  function bumpPull(src) {
+    sess.pulls++;
+    if (src === 'sim') sess.anySim = true;
+    $('pullN').textContent = sess.pulls;
+    const c = $('pullChip'); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump');
+    toast(`${src === 'sim' ? '🧪' : '📡'} سحبة إضافية رُصدت (${sess.pulls})`, false, 1800);
+  }
+
+  /* ===================== BREATHING SESSION ===================== */
+  const TOTAL = CFG.CYCLES * (CFG.INHALE_MS + CFG.EXHALE_MS);
+  const R = 152, CIRC = 2 * Math.PI * R;
+  const ring = $('ringProg');
+  ring.style.strokeDasharray = CIRC;
+  const sess = { running: false, paused: false, elapsed: 0, last: 0, raf: 0, lastCount: null, lastPhase: null, lastCycle: -1, startT: 0, pulls: 1, src: 'sim', anySim: false };
+  const ease = p => 0.5 - 0.5 * Math.cos(Math.PI * p);
+
+  function startSession(source, delta) {
+    const b = $('srcBadge');
+    if (source === 'live') { b.className = 'src-badge live'; b.textContent = '📡 سحبة حقيقية من الحساس' + (delta != null ? ` ⁦(Δ ${(+delta).toFixed(2)} hPa)⁩` : ''); }
+    else if (source === 'manual') { b.className = 'src-badge live'; b.textContent = '▶️ جلسة يدوية'; }
+    else { b.className = 'src-badge sim'; b.textContent = '🧪 وضع المحاكاة (Simulated Demo)'; }
+    const now = Date.now();
+    const recent = pulls.filter(t => now - t <= CFG.PULL_WINDOW_MS).length;
+    Object.assign(sess, { running: true, paused: false, elapsed: 0, last: performance.now(), lastCount: null, lastPhase: null, lastCycle: -1,
+      startT: now, pulls: Math.max(1, recent), src: source, anySim: source === 'sim' });
+    $('pullN').textContent = sess.pulls;
+    $('pullChip').firstChild.textContent = source === 'live' ? '📡 السحبات المرصودة: ' : '🧪 السحبات المرصودة: ';
+    $('stage').classList.remove('paused');
+    setPauseBtn(false);
+    document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
+    $('coachBubble').classList.remove('show');
+    show('session');
+    render(0);
+    cancelAnimationFrame(sess.raf);
+    sess.raf = requestAnimationFrame(tick);
+  }
+
+  function tick(now) {
+    if (!sess.running) return;
+    if (!sess.paused) sess.elapsed += now - sess.last;
+    sess.last = now;
+    if (sess.elapsed >= TOTAL) { render(TOTAL - 1); finishSession(true); return; }
+    render(sess.elapsed);
+    sess.raf = requestAnimationFrame(tick);
+  }
+
+  function render(e) {
+    const cycleLen = CFG.INHALE_MS + CFG.EXHALE_MS;
+    const cycle = Math.min(CFG.CYCLES - 1, Math.floor(e / cycleLen));
+    const t = e - cycle * cycleLen;
+    let scale, phase, remain, outOpacity;
+    if (t < CFG.INHALE_MS) {
+      const p = t / CFG.INHALE_MS;
+      scale = CFG.SCALE_MIN + (CFG.SCALE_MAX - CFG.SCALE_MIN) * ease(p);
+      phase = 'in'; remain = Math.ceil((CFG.INHALE_MS - t) / 1000);
+      outOpacity = 1 - ease(Math.min(1, p * 2.5));
+    } else {
+      const p = (t - CFG.INHALE_MS) / CFG.EXHALE_MS;
+      scale = CFG.SCALE_MAX - (CFG.SCALE_MAX - CFG.SCALE_MIN) * ease(p);
+      phase = 'out'; remain = Math.ceil((CFG.EXHALE_MS - (t - CFG.INHALE_MS)) / 1000);
+      outOpacity = ease(Math.min(1, p * 2.5));
+    }
+    $('bCircle').style.transform = `scale(${scale.toFixed(4)})`;
+    $('bcOut').style.opacity = outOpacity.toFixed(3);
+    ring.style.strokeDashoffset = (CIRC * (1 - e / TOTAL)).toFixed(2);
+    if (phase !== sess.lastPhase && !sess.paused) {
+      $('phaseLabel').textContent = phase === 'in' ? 'شهيق ببطء...' : 'زفير ببطء...';
+      sess.lastPhase = phase;
+    }
+    remain = Math.max(1, remain);
+    if (remain !== sess.lastCount) {
+      const c = $('phaseCount');
+      c.textContent = remain;
+      c.classList.add('tick'); setTimeout(() => c.classList.remove('tick'), 200);
+      sess.lastCount = remain;
+    }
+    if (cycle !== sess.lastCycle) {
+      $('cycleLabel').textContent = `الدورة ${cycle + 1} من ${CFG.CYCLES}`;
+      [...$('cdots').children].forEach((d, i) => { d.className = i < cycle ? 'done' : i === cycle ? 'now' : ''; });
+      sess.lastCycle = cycle;
+    }
+  }
+
+  function setPauseBtn(paused) {
+    $('btnPause').innerHTML = paused
+      ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg><span>استئناف</span>'
+      : '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><span>إيقاف مؤقت</span>';
+  }
+  function togglePause() {
+    if (!sess.running) return;
+    sess.paused = !sess.paused;
+    $('stage').classList.toggle('paused', sess.paused);
+    setPauseBtn(sess.paused);
+    if (sess.paused) $('phaseLabel').textContent = 'متوقف مؤقتاً';
+    else sess.lastPhase = null;
+  }
+
+  /* ===================== RESULT: automatic intensity ===================== */
+  const TIPS = {
+    light:    { key: 'distract', t: 'اشغل انتباهك بشيء آخر', p: 'رغبة خفيفة: غيّر مكانك، تمشَّ 5 دقائق، أو راسل صديقاً. تغيير النشاط يكسر ارتباط الرغبة بالموقف.' },
+    med:      { key: 'water',    t: 'اشرب كوب ماء ببطء',     p: 'رغبة متوسطة: اشرب الماء على رشفات صغيرة، فهذا يعطي يدك وفمك بديلاً في هذه اللحظة، ثم كرر التنفس إذا لزم.' },
+    sev:      { key: 'delay',    t: 'أجّل القرار 10 دقائق',   p: 'رغبة شديدة: قل لنفسك "ليس الآن، بعد 10 دقائق"، وابدأ جلسة تنفس أخرى. الموجة ترتفع ثم تهدأ.' }
+  };
+
+  function finishSession(completed) {
+    sess.running = false;
+    cancelAnimationFrame(sess.raf);
+    if (completed) [...$('cdots').children].forEach(d => d.className = 'done');
+    const tk = todayKey(), wasFrozen = !sessionsOn(tk).length;
+    const level = levelOf(sess.pulls);
+    const src = sess.src === 'live' && !sess.anySim ? 'live' : sess.src === 'manual' ? 'manual' : 'sim';
+    DB.sessions.push({ t: sess.startT, pulls: sess.pulls, level, src, completed });
+    save();
+
+    $('resTitle').textContent = completed ? 'أحسنت! أكملت جلسة كسر الرغبة' : 'أحسنت لأنك توقفت وتنفست';
+    $('resSub').textContent = completed ? '3 دورات من التنفس البطيء (30 ثانية)' : `أنهيت الجلسة بعد ${Math.round(sess.elapsed / 1000)} ثانية، وكل محاولة تُحسب`;
+
+    // intensity meter
+    const segs = { light: $('meter').children[0], med: $('meter').children[1], sev: $('meter').children[2] };
+    Object.values(segs).forEach(s => s.classList.remove('on'));
+    const secs = Math.max(1, Math.round((Date.now() - Math.min(sess.startT, ...pulls.filter(t => sess.startT - t <= CFG.PULL_WINDOW_MS))) / 1000));
+    $('autoRead').innerHTML = `<b>${sess.pulls}</b> ${sess.pulls === 1 ? 'سحبة' : sess.pulls === 2 ? 'سحبتان' : 'سحبات'} خلال ${secs} ثانية ← حدة <b style="color:${LEVELS[level].c}">${LEVELS[level].e} ${LEVELS[level].t}</b>`;
+    $('autoSrc').className = 'lvl ' + (src === 'live' ? 'live' : 'sim');
+    $('autoSrc').textContent = src === 'live' ? '📡 من الحساس' : src === 'manual' ? '▶️ جلسة يدوية' : '🧪 محاكاة';
+    setTimeout(() => segs[level].classList.add('on'), 350);
+    const tip = TIPS[level];
+    $('tipTitle').textContent = tip.t; $('tipText').textContent = tip.p;
+    document.querySelectorAll('.d').forEach(d => d.classList.toggle('on', d.dataset.d === tip.key || (level === 'sev' && d.dataset.d === 'breathe')));
+    $('refer').classList.toggle('show', level === 'sev');
+
+    const n = DB.sessions.length;
+    show('result');
+    $('resEpisodes').textContent = n - 1;
+    $('resSaved').textContent = ((n - 1) * costPerEpisode()).toFixed(2);
+    setTimeout(() => { countUp($('resEpisodes'), n, 0); countUp($('resSaved'), n * costPerEpisode(), 2); }, 450);
+    $('meltMsg').classList.toggle('show', wasFrozen);
+    renderStats();
+    selectedDay = null;
+    renderStreak(wasFrozen);
+    if (completed) setTimeout(() => confetti(wasFrozen ? 160 : 90), 300);
+    sess.meltPending = wasFrozen;
+  }
+
+  /* ===================== MODALS ===================== */
+  function openModal(id) {
+    const m = $(id); if (!m) return;
+    if (id === 'communityModal') renderCommunity();
+    if (id === 'pharmModal') resetPharm();
+    if (id === 'clinicModal') renderClinics();
+    m.classList.add('show');
+    $('coachBubble').classList.remove('show');
+  }
+  const closeModals = () => document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
+  document.addEventListener('click', e => {
+    const o = e.target.closest('[data-open]');
+    if (o) { openModal(o.dataset.open); return; }
+    const m = e.target.closest('.modal');
+    if (m && (e.target === m || e.target.closest('[data-close]'))) m.classList.remove('show');
+  });
+  $('btnCopy').addEventListener('click', async () => {
+    const txt = 'عيادة علاج الاعتماد على التبغ - مركز الحسين للسرطان: 06-5300460 تحويلة 4086 / 077-844-4517';
+    try { await navigator.clipboard.writeText(txt); toast('تم نسخ رقم KHCC ✓'); }
+    catch { toast('06-5300460 ext. 4086 · 077-844-4517'); }
+  });
+
+  /* ===================== LOCATION (Geolocation API) ===================== */
+  const REGIONS = [
+    { id: 'jubeiha', name: 'عمّان · الجبيهة',       lat: 32.0236, lng: 35.8697 },
+    { id: 'seventh', name: 'عمّان · الدوار السابع', lat: 31.9566, lng: 35.8605 },
+    { id: 'abdali',  name: 'عمّان · العبدلي',       lat: 31.9622, lng: 35.9110 },
+    { id: 'irbid',   name: 'إربد',                  lat: 32.5556, lng: 35.8500 },
+    { id: 'zarqa',   name: 'الزرقاء',               lat: 32.0728, lng: 36.0880 },
+    { id: 'ajloun',  name: 'عجلون',                 lat: 32.3326, lng: 35.7517 }
+  ];
+  const KHCC = { lat: 32.0185, lng: 35.8695 };   // approximate
+  // Partner pharmacies for Click & Collect.
+  // Placeholders until partnership agreements are signed: add the real branch name + phone ONLY after verifying them.
+  const PHARMACIES = [
+    { name: 'صيدلية شريكة · فرع الجبيهة',       area: 'عمّان · الجبيهة',       lat: 32.0250, lng: 35.8720, phone: '' },
+    { name: 'صيدلية شريكة · فرع الدوار السابع', area: 'عمّان · الدوار السابع', lat: 31.9570, lng: 35.8590, phone: '' },
+    { name: 'صيدلية شريكة · فرع العبدلي',       area: 'عمّان · العبدلي',       lat: 31.9630, lng: 35.9100, phone: '' },
+    { name: 'صيدلية شريكة · فرع إربد',          area: 'إربد · شارع الجامعة',   lat: 32.5390, lng: 35.8560, phone: '' },
+    { name: 'صيدلية شريكة · فرع الزرقاء',       area: 'الزرقاء',               lat: 32.0700, lng: 36.0870, phone: '' },
+    { name: 'صيدلية شريكة · فرع عجلون',         area: 'عجلون',                 lat: 32.3330, lng: 35.7520, phone: '' }
+  ];
+  let LOC = null, geoWatch = null;
+  const rad = d => d * Math.PI / 180;
+  function distKm(a, b) {
+    const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return 6371 * 2 * Math.asin(Math.sqrt(h));
+  }
+  const fmtKm = d => d < 1 ? `≈ ${Math.max(50, Math.round(d * 20) * 50)} م` : `≈ ${d < 10 ? d.toFixed(1) : Math.round(d)} كم`;
+  const nearestRegion = p => REGIONS.reduce((best, r) => distKm(p, r) < distKm(p, best) ? r : best, REGIONS[0]);
+
+  $('regionSel').innerHTML = '<option value="">اختر منطقتك</option>' + REGIONS.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+  $('regionSel').addEventListener('change', e => {
+    const r = REGIONS.find(x => x.id === e.target.value);
+    if (!r) return;
+    if (geoWatch !== null) { try { navigator.geolocation.clearWatch(geoWatch); } catch {} geoWatch = null; }
+    LOC = { lat: r.lat, lng: r.lng, src: 'manual', label: r.name };
+    DB.region = r.id; save();
+    renderLoc();
+  });
+
+  function startGeo() {
+    if (geoWatch !== null || (LOC && LOC.src === 'gps')) return;
+    if (!('geolocation' in navigator)) return geoFail('تحديد الموقع غير متاح هنا');
+    $('locText').textContent = 'جارٍ تحديد موقعك…';
+    try {
+      geoWatch = navigator.geolocation.watchPosition(pos => {
+        const p = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        LOC = { ...p, src: 'gps', label: 'قرب ' + nearestRegion(p).name };
+        renderLoc();
+      }, err => {
+        geoWatch = null;
+        geoFail(err && err.code === 1 ? 'لم يُسمح بالوصول للموقع' : 'تعذّر تحديد الموقع');
+      }, { enableHighAccuracy: false, maximumAge: 60000, timeout: 15000 });
+    } catch { geoWatch = null; geoFail('تعذّر تحديد الموقع'); }
+  }
+  function geoFail(msg) {
+    if (LOC) return renderLoc();          // keep a manual choice
+    const saved = REGIONS.find(r => r.id === DB.region);
+    if (saved) { LOC = { lat: saved.lat, lng: saved.lng, src: 'manual', label: saved.name }; return renderLoc(); }
+    $('locText').textContent = `${msg}: اختر منطقتك`;
+    $('locBar').classList.add('need');
+  }
+  function renderLoc() {
+    $('locBar').classList.remove('need');
+    if (!LOC) { $('locText').textContent = 'حدّد منطقتك لعرض الأقرب إليك'; return; }
+    $('locText').textContent = `${LOC.src === 'gps' ? '📡 موقعك الآن' : 'منطقتك'}: ${LOC.label}`;
+    $('regionSel').value = LOC.src === 'manual' ? (DB.region || '') : '';
+    $('clinicHint').textContent = `KHCC ${fmtKm(distKm(LOC, KHCC))} · وعيادات وزارة الصحة المجانية`;
+    const near = sortedPharm()[0];
+    $('pharmHint').textContent = `أقرب صيدلية شريكة ${fmtKm(near.d)} · جهاز + لصقات NRT + استشارة`;
+    if ($('clinicModal').classList.contains('show')) renderClinics();
+    if ($('pharmModal').classList.contains('show') && !$('bookDone').classList.contains('show')) renderPharm();
+  }
+  function sortedPharm() {
+    const list = PHARMACIES.map((p, i) => ({ ...p, i, d: LOC ? distKm(LOC, p) : null }));
+    return LOC ? list.sort((a, b) => a.d - b.d) : list;
+  }
+  function renderClinics() {
+    $('clinicLoc').textContent = LOC ? `المسافة من ${LOC.src === 'gps' ? 'موقعك الحالي' : LOC.label}` : 'اختر منطقتك لعرض المسافة';
+    $('khccDist').textContent = LOC ? fmtKm(distKm(LOC, KHCC)) : '';
+  }
+
+  /* ===================== CLICK & COLLECT ===================== */
+  let bookingFor = null;
+  function renderPharm() {
+    $('pharmList').innerHTML = sortedPharm().map((p, k) => `
+      <div class="ph${k === 0 && LOC ? ' near' : ''}">
+        <div class="pi"><b>${p.name}${k === 0 && LOC ? '<span class="near-tag">الأقرب</span>' : ''}</b>
+          <small>${p.area}${p.d != null ? ' · ' + fmtKm(p.d) : ''}</small>
+          <small>${p.phone ? `<a class="tel" href="tel:${p.phone.replace(/\D/g, '')}">📞 ${p.phone}</a>` : 'رقم الفرع يُضاف بعد توقيع الشراكة'}</small></div>
+        <button class="pbook" data-pi="${p.i}">احجز الباقة للاستلام من الصيدلية</button>
+      </div>`).join('');
+  }
+  function resetPharm() {
+    renderPharm();
+    $('pharmList').style.display = '';
+    $('bookBox').classList.remove('show'); $('bookDone').classList.remove('show'); $('formWarn').classList.remove('show');
+    ['cAdult', 'cRisk', 'cConsent'].forEach(id => $(id).checked = false);
+    bookingFor = null;
+  }
+  $('pharmList').addEventListener('click', e => {
+    const b = e.target.closest('.pbook'); if (!b) return;
+    bookingFor = PHARMACIES[+b.dataset.pi];
+    $('bookFor').textContent = `الاستلام من: ${bookingFor.name} (${bookingFor.area})`;
+    $('bookBox').classList.add('show');
+    $('bookBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+  $('btnBook').addEventListener('click', () => {
+    const w = $('formWarn');
+    let msg = '';
+    if (!bookingFor) msg = 'اختر الصيدلية أولاً.';
+    else if (!$('cAdult').checked) msg = 'لصقات النيكوتين في هذه الباقة للبالغين (18+) فقط. لمن هم دون 18: راجع الطبيب أو عيادة الإقلاع.';
+    else if (!$('cConsent').checked) msg = 'استشارة الصيدلاني مطلوبة قبل الصرف.';
+    if (msg) { w.textContent = msg; w.classList.add('show'); return; }
+    w.classList.remove('show');
+    const code = '#CB-2026-' + String(Math.floor(1000 + Math.random() * 9000));
+    DB.booking = { code, pharmacy: bookingFor.name, t: Date.now() }; save();
+    $('bookCode').textContent = code;
+    $('bookMsg').innerHTML = `توجّه إلى <b>${bookingFor.name}</b> خلال 48 ساعة وأبرز هذا الكود. يقيّم الصيدلاني حالتك ويحدد المنتج المناسب${$('cRisk').checked ? '، و<b>بسبب الحالة التي حددتها يلزم استشارة الطبيب قبل صرف اللصقات</b>' : ''}.<br><small>حجز تجريبي للعرض: لم يُرسل أي طلب.</small>`;
+    $('pharmList').style.display = 'none';
+    $('bookBox').classList.remove('show');
+    $('bookDone').classList.add('show');
+    confetti(80);
+    coachSay(`حجزت باقتك 🎟️ الكود <b class="ltr">${code}</b>. خطوة ذكية!`, { cheer: true, ms: 6000 });
+  });
+
+  /* ===================== NASEEM CHAT COACH ===================== */
+  const norm = t => (t || '').toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[ً-ْـ]/g, '');
+  const QUICK = [
+    { t: 'أشعر برغبة شديدة الآن 🌊', i: 'craving' },
+    { t: 'كيف أستخدم لصقة النيكوتين بأمان؟ 🩹', i: 'patch' },
+    { t: 'أشعر بتوتر وعصبية 😤', i: 'stress' },
+    { t: 'أعطني خطة لليوم 📋', i: 'plan' },
+    { t: 'دخّنت اليوم… هل فشلت؟ 😔', i: 'slip' },
+    { t: 'لا أستطيع النوم 😴', i: 'sleep' },
+    { t: 'أين أجد عيادة أو صيدلية؟ 📍', i: 'help' },
+    { t: 'كيف إنجازي؟ 📈', i: 'progress' }
+  ];
+  const INTENTS = [
+    ['emergency', ['الم في الصدر', 'الم بالصدر', 'وجع بالصدر', 'ضيق نفس شديد', 'ما بقدر اتنفس', 'لا استطيع التنفس', 'اغماء', 'اغمي', 'جلطه', 'نوبه قلبيه', 'chest pain']],
+    ['crisis', ['انتحار', 'انتحر', 'انهي حياتي', 'اذي نفسي', 'اذيت نفسي', 'ما بدي اعيش', 'لا اريد ان اعيش', 'بدي اموت', 'اريد ان اموت']],
+    ['slip', ['دخنت', 'رجعت', 'انتكس', 'فشلت', 'غلطت', 'زله', 'ضعفت', 'سحبت سيجاره']],
+    ['craving', ['رغبه', 'اشتهي', 'مشتهي', 'بدي سيجار', 'بدي ادخن', 'بدي فيب', 'سيجاره', 'اشتقت', 'crave', 'craving', 'بدي اسحب']],
+    ['patch', ['لصق', 'nrt', 'نيكوتين', 'علكه', 'بدائل']],
+    ['stress', ['توتر', 'عصب', 'قلق', 'ضغط', 'زعلان', 'متضايق', 'غضب', 'stress', 'معصب']],
+    ['sleep', ['نوم', 'ارق', 'سهر', 'انام']],
+    ['weight', ['وزن', 'اكل', 'جوع', 'شهيه', 'سمنه']],
+    ['vape', ['فيب', 'vape', 'الكتروني', 'شيشه', 'ارجيله']],
+    ['help', ['عياده', 'صيدليه', 'طبيب', 'دكتور', 'موعد', 'اتصل', 'رقم', 'وين', 'اين']],
+    ['progress', ['انجاز', 'تقدم', 'وفرت', 'احصائ', 'كم جلسه', 'سلسله']],
+    ['plan', ['خطه', 'جدول', 'برنامج', 'plan', 'روتين']],
+    ['thanks', ['شكرا', 'يعطيك', 'مشكور', 'thanks', 'تسلم']],
+    ['hello', ['مرحبا', 'اهلا', 'السلام', 'هاي', 'hello', 'hi', 'صباح', 'مساء', 'كيف حالك', 'كيفك', 'شلونك', 'كيف الحال', 'من انت']]
+  ].map(([i, k]) => [i, k.map(norm)]);
+  const detectIntent = text => { const n = norm(text); const hit = INTENTS.find(([, k]) => k.some(w => n.includes(w))); return hit ? hit[0] : 'fallback'; };
+
+  const go = fn => () => { closeModals(); setTimeout(fn, 250); };
+  const ACT = {
+    breathe: { label: '🌬️ ابدأ تمرين التنفس الآن', fn: go(() => startSession('manual')) },
+    clinic:  { label: '🏥 أقرب عيادة إقلاع', fn: () => openModal('clinicModal') },
+    pharm:   { label: '💊 احجز باقة من صيدلية', fn: () => openModal('pharmModal') },
+    eod:     { label: '🔔 ملخص إنجازات اليوم', fn: go(openEod) },
+    patch:   { label: '🩹 سجّل لصقة اليوم', fn: () => { const tk = todayKey(); if (!(DB.patches[tk] && DB.patches[tk].on)) $('btnPatch').click(); closeModals(); } }
+  };
+  function reply(intent) {
+    const tk = todayKey(), i = dayIndex(tk), ss = sessionsOn(tk).length, p = DB.patches[tk];
+    switch (intent) {
+      case 'emergency': return { cls: 'alert', html: '⚠️ هذه أعراض قد تكون <b>طارئة</b>. اتصل بالطوارئ <a href="tel:911"><b>911</b></a> فوراً أو توجّه لأقرب قسم طوارئ، ولا تنتظر.' };
+      case 'crisis': return { cls: 'alert', html: 'أنا آسف أنك تمرّ بهذا 💙 ما تشعر به مهم. إذا كنت في خطر أو تفكّر في إيذاء نفسك، <b>اتصل بالطوارئ <a href="tel:911">911</a> الآن</b>، وتواصل فوراً مع شخص تثق به ليكون معك. أنت لست وحدك.' };
+      case 'craving': return { html: 'خلّينا نكسرها معاً الآن 💪 الرغبة <b>موجة</b>: ترتفع ثم تهدأ.<ol><li><b>تنفّس:</b> تمرين 30 ثانية (شهيق 4 / زفير 6).</li><li><b>أجّل:</b> قل لنفسك "ليس الآن، بعد 10 دقائق".</li><li><b>اشرب ماء</b> على رشفات صغيرة.</li><li><b>غيّر مكانك</b> أو تمشَّ 5 دقائق.</li></ol>', acts: [ACT.breathe] };
+      case 'patch': return { html: 'إرشادات عامة لاستخدام اللصقة بأمان 🩹<ul><li>اتبع <b>نشرة المنتج وتعليمات الصيدلاني</b>، فهو من يحدد القوة المناسبة لك.</li><li>ضعها على جلد <b>نظيف وجاف وخالٍ من الشعر</b>، وغيّر مكانها كل يوم.</li><li><b>لا تدخّن ولا تستخدم الفيب</b> أثناء استخدامها.</li><li>عند تهيّج شديد أو خفقان أو غثيان أو أحلام مزعجة: راجع الصيدلاني.</li><li>في الحمل أو الرضاعة أو أمراض القلب أو لمن هم دون 18: <b>استشر الطبيب أولاً</b>.</li></ul>', acts: [p && p.on ? null : ACT.patch, ACT.pharm].filter(Boolean) };
+      case 'stress': return { html: 'التوتر والعصبية شائعان في الأيام الأولى بعد التوقف، وغالباً يخفّان تدريجياً 🌿 جرّب الآن:<ul><li>تمرين تنفس بطيء لمدة 30 ثانية.</li><li>سمِّ شعورك: "أنا متوتر، وهذا سيمر".</li><li>حركة خفيفة أو مشي 5 دقائق.</li><li>خفّف القهوة والشاي اليوم.</li></ul>إذا استمر التوتر أو أثّر على يومك، تحدّث مع مختص.', acts: [ACT.breathe] };
+      case 'plan': return { html: `خطتك لليوم ${i} 📋<ul><li>☀️ <b>الصباح:</b> ${p && p.on ? 'لصقتك مسجّلة ✓' : 'سجّل لصقتك إن كانت ضمن خطتك'}، واشرب كوب ماء قبل القهوة.</li><li>🍽️ <b>بعد الأكل:</b> وقت شائع للرغبة، فقم من مكانك وتمشَّ 5 دقائق.</li><li>🌬️ <b>عند كل رغبة:</b> جلسة تنفس واحدة (30 ثانية).</li><li>🌙 <b>المساء:</b> افتح ملخص إنجازات اليوم.</li></ul>هدفك اليوم: <b>3 لحظات تحكّم</b> (أنجزت ${ss} حتى الآن).`, acts: [ACT.breathe, ACT.eod] };
+      case 'slip': return { html: 'لا، لم تفشل 💙 زلّة واحدة لا تمحو تقدّمك.<ul><li>توقّف الآن ولا تكمل.</li><li>اسأل نفسك: ما الذي حفّزني؟ مكان، شخص، أم شعور؟</li><li>جهّز خطة لنفس الموقف في المرة القادمة.</li></ul>إذا تكرر الأمر، فعيادة الإقلاع تساعدك بخطة أقوى.', acts: [ACT.breathe, ACT.clinic] };
+      case 'sleep': return { html: 'صعوبة النوم قد تظهر في الأيام الأولى 🌙<ul><li>تجنّب القهوة والشاي بعد العصر.</li><li>تمرين تنفس 4/6 لمدة 5 دقائق قبل النوم.</li><li>أبعد الهاتف قبل النوم بنصف ساعة.</li><li>إذا كنت تستخدم لصقة 24 ساعة واضطرب نومك، اسأل الصيدلاني عن إزالتها قبل النوم.</li></ul>' };
+      case 'weight': return { html: 'زيادة الشهية بعد التوقف أمر يلاحظه كثيرون 🍎<ul><li>اشرب الماء قبل الوجبات.</li><li>اجعل الخضار والفواكه المقطّعة في متناولك.</li><li>التزم بوجبات منتظمة بدل الأكل العشوائي.</li><li>امشِ يومياً ولو قليلاً.</li></ul>' };
+      case 'vape': return { html: 'جهاز CraveBreaker يعمل بـ<b>هواء الغرفة فقط</b>: بلا نيكوتين ولا تسخين ولا نكهات 🌬️<br>يوصي مركز الحسين للسرطان بعدم الترويج للسجائر الإلكترونية كأداة للإقلاع، وباستخدام العلاجات المعتمدة: الأدوية والدعم السلوكي. عيادة الإقلاع تساعد مستخدمي الفيب أيضاً.', acts: [ACT.clinic] };
+      case 'help': {
+        const where = LOC ? `من ${LOC.src === 'gps' ? 'موقعك الحالي' : LOC.label}` : '';
+        return { html: `هذه أقرب خيارات الدعم ${where} 📍<ul><li><b>KHCC:</b> عيادة علاج الاعتماد على التبغ${LOC ? ` (${fmtKm(distKm(LOC, KHCC))})` : ''}: <a href="tel:+96265300460">06-5300460</a> فرعي 4086.</li><li><b>وزارة الصحة:</b> 23 عيادة مجانية، والخط الوطني <a href="tel:+96265004546">06-5004546</a>.</li><li><b>صيدلية شريكة:</b> احجز باقة الإقلاع واستلمها مع استشارة.</li></ul>`, acts: [ACT.clinic, ACT.pharm] };
+      }
+      case 'progress': {
+        const n = DB.sessions.length, st = streakCount();
+        return { html: `إنجازك حتى الآن 📈<ul><li>🫁 <b>${n}</b> ${n === 1 ? 'جلسة تنفس مكتملة' : 'جلسات تنفس مكتملة'} (${ss} اليوم).</li><li>💰 وفّرت تقريباً <b>${(n * costPerEpisode()).toFixed(2)} د.أ</b>.</li><li>🔥 سلسلة حماس: <b>${st}</b> ${st === 1 ? 'يوم' : 'أيام'} متتالية.</li></ul>${ss ? 'استمر، أنت تبني عادة جديدة 💪' : 'جلسة واحدة اليوم تشعل يومك 🔥'}`, acts: [ACT.eod] };
+      }
+      case 'thanks': return { html: 'العفو! أنا هنا متى احتجتني 💙 <b>خذ نفس، واكسر الرغبة.</b>' };
+      case 'hello': return { html: 'أهلاً بك! 👋 أنا بخير ما دمت تتنفّس معي 😄 أنا <b>نسيم</b>، مرشدك في رحلة الحرية. كيف أقدر أساعدك الآن؟ اختر من الأزرار بالأسفل أو اكتب لي.' };
+      default: return { html: 'لم أفهم سؤالك تماماً 🤔 أستطيع مساعدتك في: <b>الرغبة، والتوتر، واللصقات، والنوم، وخطة اليوم، والعيادات والصيدليات</b>. اختر من الأزرار بالأسفل أو جرّب كلمات أخرى.' };
+    }
+  }
+  function addMsg(html, who, cls = '', acts = []) {
+    const m = document.createElement('div');
+    m.className = `msg ${who} ${cls}`.trim();
+    if (who === 'me') m.textContent = html; else m.innerHTML = html;
+    if (acts.length) {
+      const a = document.createElement('div'); a.className = 'acts';
+      acts.forEach(x => { const b = document.createElement('button'); b.type = 'button'; b.textContent = x.label; b.onclick = x.fn; a.appendChild(b); });
+      m.appendChild(a);
+    }
+    $('chatLog').appendChild(m);
+    $('chatLog').scrollTop = $('chatLog').scrollHeight;
+  }
+  let typingT = null;
+  function botReply(intent) {
+    const t = document.createElement('div'); t.className = 'typing'; t.innerHTML = '<i></i><i></i><i></i>';
+    $('chatLog').appendChild(t); $('chatLog').scrollTop = $('chatLog').scrollHeight;
+    clearTimeout(typingT);
+    typingT = setTimeout(() => {
+      t.remove();
+      const r = reply(intent);
+      addMsg(r.html, 'bot', r.cls || '', r.acts || []);
+      cheerBird($('chatHeadBird'));
+    }, 650 + Math.random() * 450);
+  }
+  function userSays(text, intent) {
+    text = (text || '').trim(); if (!text) return;
+    addMsg(text, 'me');
+    botReply(intent || detectIntent(text));
+  }
+  $('quick').innerHTML = QUICK.map((q, k) => `<button type="button" data-q="${k}">${q.t}</button>`).join('');
+  $('quick').addEventListener('click', e => { const b = e.target.closest('[data-q]'); if (b) { const q = QUICK[+b.dataset.q]; userSays(q.t, q.i); } });
+  $('chatForm').addEventListener('submit', e => { e.preventDefault(); const v = $('chatInput').value; $('chatInput').value = ''; userSays(v); });
+  function openChat() {
+    openModal('chatModal');
+    if (!$('chatLog').children.length) {
+      const tk = todayKey(), ss = sessionsOn(tk).length;
+      addMsg(`مرحباً 👋 أنا <b>نسيم</b>، مرشدك الذكي.<br>أنت في <b>اليوم ${dayIndex(tk)}</b> من رحلتك${ss ? ` وسجّلت ${ss} ${ss === 1 ? 'لحظة تحكّم' : 'لحظات تحكّم'} اليوم 👏` : ''}.<br>كيف أقدر أساعدك الآن؟`, 'bot');
+    }
+    cheerBird($('chatHeadBird'));
+    if (window.matchMedia('(min-width: 900px)').matches) setTimeout(() => $('chatInput').focus(), 300);
+  }
+
+  // Community (illustrative content, clearly labelled)
+  const DEMO_POSTS = [
+    { n: 'ع. م', a: '#0284C7', w: 'منذ 3 ساعات', t: 'اليوم 12 بدون فيب 🔥 أصعب وقت عندي بعد الغداء، صرت أشرب ماء وأتمشى 5 دقائق.', c: 14 },
+    { n: 'ر. ح', a: '#10B981', w: 'منذ 5 ساعات', t: 'كانت عندي رغبة قوية الصبح مع القهوة. عملت جلستين تنفس ورا بعض وعدّت 💪', c: 22 },
+    { n: 'س. ق', a: '#F59E0B', w: 'أمس', t: 'حجزت موعد في عيادة الإقلاع. وجود خطة مع مختص فرق معي كثير.', c: 31 },
+    { n: 'م. ط', a: '#6366F1', w: 'أمس', t: 'نصيحتي: احذف رقم البائع وغيّر طريقك المعتاد أول أسبوع 🙏', c: 9 }
+  ];
+  let cheered = new Set(), liveCheer = null;
+  function shareText() {
+    const tk = todayKey(), i = dayIndex(tk), ss = sessionsOn(tk).length, s = streakCount();
+    return `🎉 أنا في اليوم ${i} من رحلة الحرية مع CraveBreaker! أكملت ${DB.sessions.length} جلسة تنفس (${ss} اليوم)، وسلسلة حماسي ${s} 🔥`;
+  }
+  function renderCommunity() {
+    $('shareText').textContent = shareText();
+    const mine = DB.myPosts.map(p => ({ ...p, mine: true }));
+    const all = [...mine, ...DEMO_POSTS];
+    $('feed').innerHTML = all.map((p, i) => `
+      <div class="post${p.mine ? ' mine' : ''}">
+        <div class="av" style="background:${p.mine ? 'linear-gradient(135deg,#0284C7,#10B981)' : p.a}">${p.mine ? 'أنا' : p.n.split(' ')[0]}</div>
+        <div class="pb"><div class="pn">${p.mine ? 'أنت' : p.n}<small>${p.w}</small></div><p>${p.t}</p>
+        ${p.mine ? '' : `<button class="cheer${cheered.has(i - mine.length) ? ' done' : ''}" data-ci="${i - mine.length}">👏 تشجيع <span class="n">${p.c + (cheered.has(i - mine.length) ? 1 : 0)}</span></button>`}</div>
+      </div>`).join('');
+    clearInterval(liveCheer);
+    liveCheer = setInterval(() => {   // simulated live encouragement (demo)
+      if (!$('communityModal').classList.contains('show')) return clearInterval(liveCheer);
+      const k = (Math.random() * DEMO_POSTS.length) | 0;
+      DEMO_POSTS[k].c++;
+      const btn = $('feed').querySelector(`[data-ci="${k}"] .n`);
+      if (btn) { btn.textContent = DEMO_POSTS[k].c + (cheered.has(k) ? 1 : 0); btn.classList.remove('bump'); void btn.offsetWidth; btn.classList.add('bump'); }
+    }, 2600);
+  }
+  $('feed').addEventListener('click', e => {
+    const b = e.target.closest('.cheer'); if (!b) return;
+    const k = +b.dataset.ci;
+    if (cheered.has(k)) cheered.delete(k); else cheered.add(k);
+    b.classList.toggle('done', cheered.has(k));
+    b.querySelector('.n').textContent = DEMO_POSTS[k].c + (cheered.has(k) ? 1 : 0);
+  });
+  $('btnShare').addEventListener('click', () => {
+    DB.myPosts.unshift({ n: 'أنت', w: 'الآن', t: shareText() });
+    DB.myPosts = DB.myPosts.slice(0, 5);
+    save(); renderCommunity();
+    toast('تمت مشاركة إنجازك في المجتمع (محلياً للعرض) 🎉');
+    coachSay('شاركت إنجازك! <b>إلهامك</b> قد يساعد شخصاً آخر اليوم 💙', { cheer: true, ms: 5000 });
+  });
+  $('btnCopyShare').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(shareText()); toast('تم نسخ النص ✓'); } catch { toast('تعذّر النسخ: انسخ النص يدوياً', true); }
+  });
+
+  /* ===================== END-OF-DAY NOTIFICATION ===================== */
+  function openEod() {
+    const tk = todayKey(), ss = sessionsOn(tk), n = ss.length, s = streakCount(), i = dayIndex(tk);
+    $('notifDay').textContent = `اليوم ${i} من رحلة الحرية`;
+    $('nEp').textContent = '0'; $('nSaved').textContent = '0.00'; $('nStreak').textContent = '0';
+    let pct, label, msg;
+    if (!n) {
+      pct = 10; label = 'بانتظار أول جلسة';
+      msg = 'لم تُسجَّل جلسات تنفس اليوم بعد. إذا جاءتك رغبة قبل النوم، <b>جلسة واحدة</b> تحوّل يومك من ❄️ إلى 🔥';
+    } else {
+      const score = ss.reduce((a, x) => a + (x.level === 'light' ? 1 : x.level === 'med' ? .65 : .35), 0) / n;
+      pct = Math.round(35 + score * 65);
+      label = score >= .85 ? 'تحكم ممتاز 💪' : score >= .6 ? 'تحكم جيد 👍' : 'يوم صعب وصمدت 🦁';
+      const sev = ss.filter(x => x.level === 'sev').length;
+      msg = `سجّلت <b>${n}</b> ${n === 1 ? 'لحظة تحكّم' : 'لحظات تحكّم'} اليوم${sev ? `، منها <b>${sev}</b> مع رغبة شديدة` : ''}. كل جلسة تقوّي قدرتك على قول "لا" للرغبة.`;
+    }
+    const p = DB.patches[tk];
+    msg += p && p.on ? (p.dual ? '<br>🩹 سجّلت اللصقة، مع ملاحظة استخدام مزدوج: راجع خطتك مع الصيدلي.' : '<br>🩹 التزمت بلصقة اليوم ✓') : '';
+    $('ctrlLabel').textContent = label;
+    $('notifMsg').innerHTML = msg;
+    $('ctrlBar').style.width = '0';
+    $('notifWrap').classList.add('show');
+    $('coachBubble').classList.remove('show');
+    setTimeout(() => {
+      countUp($('nEp'), n); countUp($('nSaved'), n * costPerEpisode(), 2); countUp($('nStreak'), s);
+      $('ctrlBar').style.width = pct + '%';
+      cheerBird($('notifBird')); confetti(n ? 150 : 50);
+    }, 450);
+  }
+  $('btnEod').addEventListener('click', openEod);
+  $('notifOk').addEventListener('click', () => $('notifWrap').classList.remove('show'));
+  $('notifWrap').addEventListener('click', e => { if (e.target === $('notifWrap')) $('notifWrap').classList.remove('show'); });
+
+  /* ===================== DEBUG PANEL ===================== */
+  const dbg = $('debug');
+  const toggleDebug = () => dbg.classList.toggle('show');
+  dbg.addEventListener('click', e => { if (e.target.closest('[data-dbg-close]')) dbg.classList.remove('show'); });
+  $('thRange').addEventListener('input', e => setThresholdUI(+e.target.value));
+  $('thRange').addEventListener('change', e => { send('TH=' + (+e.target.value).toFixed(2)); toast('تم إرسال العتبة الجديدة للجهاز'); });
+  $('dbgCal').addEventListener('click', () => send('CAL'));
+  $('dbgPing').addEventListener('click', () => send('PING'));
+  $('dbgDemo').addEventListener('click', () => { seedDemo(); selectedDay = null; renderAll(); show('home'); toast('تم تحميل بيانات العرض التوضيحية'); });
+  $('dbgReset').addEventListener('click', () => {
+    DB = Object.assign(blankDB(), { packPrice: DB.packPrice, packSize: DB.packSize }); save();
+    selectedDay = null; dbg.classList.remove('show'); show('home'); openOnboarding();
+  });
+  $('packPrice').value = DB.packPrice; $('packSize').value = DB.packSize;
+  $('packPrice').addEventListener('change', e => { DB.packPrice = Math.max(0, +e.target.value || 0); save(); renderStats(); renderStreak(); });
+  $('packSize').addEventListener('change', e => { DB.packSize = Math.max(1, Math.round(+e.target.value || 20)); save(); renderStats(); renderStreak(); });
+  let brandClicks = 0, brandT;
+  $('brand').addEventListener('click', () => { brandClicks++; clearTimeout(brandT); brandT = setTimeout(() => brandClicks = 0, 600); if (brandClicks >= 3) { brandClicks = 0; toggleDebug(); } });
+
+  /* ===================== BUTTONS + KEYS ===================== */
+  $('statusPill').addEventListener('click', () => { if (supported) connect(); });
+  $('btnChat').addEventListener('click', () => openChat());
+  $('btnSim').addEventListener('click', simPull);
+  $('btnExtraPull').addEventListener('click', simPull);
+  $('btnPause').addEventListener('click', togglePause);
+  $('btnEnd').addEventListener('click', () => finishSession(sess.elapsed >= TOTAL - 50));
+  $('btnDone').addEventListener('click', () => {
+    show('home');
+    if (sess.meltPending) { sess.meltPending = false; setTimeout(() => coachSay('أذبت جليد اليوم! 🔥 يومك الآن <b>مشتعل</b>. أنا فخور بك!', { cheer: true, ms: 6000 }), 400); }
+    else setTimeout(() => coachSay('لحظة تحكّم جديدة 👏 <b>استمر</b>!', { cheer: true, ms: 4500 }), 400);
+  });
+  $('btnAgain').addEventListener('click', () => startSession('manual'));
+
+  document.addEventListener('keydown', e => {
+    if (e.target.matches('input,select,textarea')) return;
+    const k = e.key.toLowerCase();
+    if (k === 'escape') { closeModals(); $('notifWrap').classList.remove('show'); dbg.classList.remove('show'); }
+    else if ((k === 's' || k === 'س') && !$('onboard').classList.contains('show')) simPull();   // hidden backup trigger
+    else if ((k === 'd' || k === 'ي') && !e.ctrlKey && !e.metaKey) toggleDebug();
+    else if (k === ' ' && current === 'session') { e.preventDefault(); togglePause(); }
+  });
+
+  /* ===================== INIT ===================== */
+  setPauseBtn(false);
+  drawSpark();
+  if (DB.profile) renderAll();
+  setTimeout(() => cheerBird($('splash')), 700);
+  setTimeout(() => {
+    $('splash').classList.add('hide');
+    if (!DB.profile) openOnboarding();
+    else {
+      document.body.classList.remove('no-coach');
+      startGeo();
+      setTimeout(coachContext, 1400);
+    }
+  }, 1800);
+}
+</script>
+</body>
+</html>
