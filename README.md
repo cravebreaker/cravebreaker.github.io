@@ -1,5 +1,5 @@
 # CraveBreaker — خذ نفس، واكسر الرغبة
 
-🔗 **افتح التطبيق:** https://mohammademadd345543-pixel.github.io/cravebreaker/
+🔗 **افتح التطبيق:** https://cravebreaker.github.io/
 
 ![QR](cravebreaker-qr.png)
